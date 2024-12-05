@@ -360,7 +360,7 @@ def main():
         
         import pandas as pd
         
-        df = pd.read_csv(pathxy+'00 - originaloasis.csv')
+        df = pd.read_csv('00 - originaloasis.csv')
         
         df = df.loc[df['Course'] == COURSE]
         
