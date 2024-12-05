@@ -379,7 +379,7 @@ def main():
         
         x = df.loc[df['prof'] == 'Concern: Exhibited lapse(s) in professional behaviors (honesty, integrity, accountability, reliability, adhering to ethical norms)']
         
-        display(x)
+        st.dataframe(x)
         
         df.to_csv('prof.csv',index=False)
         
