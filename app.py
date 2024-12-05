@@ -28,6 +28,10 @@ def save_file_as_csv(uploaded_file):
 
 def main():
     # Title and instructions
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import io
     st.title("Clinical Assessment of Student Forms")
     st.write("Please upload the Clinical Assessment of Student Forms files (CSV or Excel format).")
 
