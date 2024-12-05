@@ -677,7 +677,7 @@ def main():
         df1 = pd.DataFrame(columns=COLUMNS)
         df1['Student name'] = ['X']*12
         df1['Item'] = items
-        df1['*Peds Level of Responsibility1] = ['Performed'] * 12
+        df1['*Peds Level of Responsibility'] = ['Performed'] * 12
 
         df1 = df1.fillna('X')
 
