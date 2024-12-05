@@ -69,7 +69,7 @@ def main():
         df_1.to_csv('recordidmapper.csv',index=False)
         
         COURSE = "Pediatric Clerkship"
-        df_2 = df_2.loc[df['Course'] == COURSE]
+        df_2 = df_2.loc[df_2['Course'] == COURSE]
         df_2 = df_2.loc[:, df.columns != 'Course ID']
         
         df2 = df_2[['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
