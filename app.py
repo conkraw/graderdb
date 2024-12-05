@@ -72,7 +72,7 @@ def main():
     if "csv_file_1" in st.session_state and "csv_file_2" in st.session_state:
         
         df_1.to_csv('recordidmapper.csv',index=False)
-        df_2.to_csv('00 - originaloasis.csv,index=False)
+        df_2.to_csv('00 - originaloasis.csv',index=False)
                     
         COURSE = "Pediatric Clerkship"
         df_2 = df_2.loc[df_2['Course'] == COURSE]
