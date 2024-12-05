@@ -4,11 +4,19 @@ import io
 
 # Function to handle file upload and save it as a CSV
 def save_file_as_csv(uploaded_file):
-    # Read the uploaded file as a Pandas dataframe (assuming it's an Excel or CSV)
+    # Check file extension to determine whether it's a CSV or Excel file
+    file_extension = uploaded_file.name.split('.')[-1].lower()
+    
     try:
-        # For the sake of this example, we'll assume the uploaded file is in Excel format.
-        # If it's a CSV, you can adjust this accordingly to pd.read_csv(uploaded_file)
-        df = pd.read_excel(uploaded_file)
+        if file_extension == "csv":
+            # Read the CSV file directly into a Pandas DataFrame
+            df = pd.read_csv(uploaded_file)
+        elif file_extension == "xlsx":
+            # Read the Excel file into a Pandas DataFrame
+            df = pd.read_excel(uploaded_file)
+        else:
+            raise ValueError("File must be CSV or Excel format.")
+        
         # Save it as a CSV in memory (this can also be saved to disk if required)
         csv_file = io.StringIO()
         df.to_csv(csv_file, index=False)
@@ -20,10 +28,10 @@ def save_file_as_csv(uploaded_file):
 def main():
     # Title and instructions
     st.title("Clinical Assessment of Student Forms")
-    st.write("Please upload the Clinical Assessment of Student Forms file in Excel format.")
+    st.write("Please upload the Clinical Assessment of Student Forms file (CSV or Excel format).")
     
-    # File uploader (assuming Excel file for the example)
-    uploaded_file = st.file_uploader("Upload Clinical Assessment File (Excel)", type=["xlsx"])
+    # File uploader (accepting both CSV and XLSX formats)
+    uploaded_file = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
 
     if uploaded_file is not None:
         # Save and convert to CSV when file is uploaded
@@ -50,3 +58,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
