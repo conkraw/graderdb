@@ -647,12 +647,38 @@ def main():
                                 "*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ")
         
         df.to_csv('00 - export_results_org.csv',index=False)
-    
-        df1 = pd.DataFrame({
-            'Student name': ['X'] * 12,
-            'Item': items,
-            '*Peds Level of Responsibility': ['Performed'] * 12
-        })
+
+        COLUMNS=['Student name',
+         'External ID',
+         'Email',
+         'Start Date',
+         'Location',
+         'Checklist',
+         'Checklist status',
+         'Item',
+         'Item status',
+         'Original/Copy',
+         'Signed By',
+         'Time Signed',
+         'Verified By',
+         'Verification Comments',
+         'Verified Date',
+         'Time entered',
+         'Date',
+         'Times observed',
+         'Is proficient',
+         'Needs Practice',
+         'Comments',
+         '*Peds Level of Responsibility',
+         '*Peds Level of Responsibility comments',
+         '*Level of Responsibility',
+         '*Level of Responsibility comments']
+
+        df1 = pd.DataFrame(columns=COLUMNS)
+        df1['Student name'] = ['X']*12
+        df1['Item'] = items
+        df1['*Peds Level of Responsibility1] = ['Performed'] * 12
+
         df1 = df1.fillna('X')
 
         df2 = pd.concat([df, df1])
