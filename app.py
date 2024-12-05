@@ -41,14 +41,18 @@ def main():
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_2 = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
 
-    if uploaded_file_1 is not None and uploaded_file_2 is not None:
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_3 = st.file_uploader("Upload Clinical Encounters File (CSV or Excel)", type=["csv", "xlsx"])
+    
+    if uploaded_file_1 is not None and uploaded_file_2 and uploaded_file_3 is not None:
         # Save and convert the first file to CSV when uploaded
         csv_content_1, df_1 = save_file_as_csv(uploaded_file_1)
-
-        # Save and convert the second file to CSV when uploaded
-        csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
         
-        if csv_content_1 and csv_content_2:
+        csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
+
+        csv_content_3, df_3 = save_file_as_csv(uploaded_file_3)
+        
+        if csv_content_1 and csv_content_2 and csv_content_3:
             # Display the first few rows of each dataframe as a preview
             st.write("Preview of File 1 Data:")
             st.dataframe(df_1.head())  # Show the first 5 rows of the first file
@@ -56,24 +60,38 @@ def main():
             st.write("Preview of File 2 Data:")
             st.dataframe(df_2.head())  # Show the first 5 rows of the second file
 
+            st.write("Preview of File 3 Data:")
+            st.dataframe(df_3.head())  # Show the first 5 rows of the second file
+            
             # Button to go to the next screen
             if st.button("Next"):
                 # You can now access the CSV content and df of both files in the next screen
                 st.session_state.csv_file_1 = csv_content_1
                 st.session_state.df_1 = df_1
+                
                 st.session_state.csv_file_2 = csv_content_2
                 st.session_state.df_2 = df_2
-                st.write("Both files have been saved and are ready for processing.")
+
+                st.session_state.csv_file_3 = csv_content_3
+                st.session_state.df_3 = df_3
                 
-    elif uploaded_file_1 is None or uploaded_file_2 is None:
+                st.write("Files have been saved and are ready for processing.")
+                
+    elif uploaded_file_1 is None or uploaded_file_2 or uploaded_file_3 is None:
         st.warning("Please upload both files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_1" in st.session_state and "csv_file_2" in st.session_state:
+    if "csv_file_1" in st.session_state and "csv_file_2" and "csv_file_3" in st.session_state:
         
         df_1.to_csv('recordidmapper.csv',index=False)
         df_2.to_csv('00 - originaloasis.csv',index=False)
-                    
+        df_3.to_csv('00 - export_results.csv',index=False)
+        
+        x = df_3['*Peds Level of Responsibility'].unique().tolist()
+        observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
+        observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
+        observed.to_csv('00 - observed_report.csv',index=False)
+        
         COURSE = "Pediatric Clerkship"
         df_2 = df_2.loc[df_2['Course'] == COURSE]
         df_2 = df_2.loc[:, df_2.columns != 'Course ID']
@@ -593,7 +611,61 @@ def main():
         df = df[['email','evaluator','strengths','weaknesses']]
         
         st.dataframe(df)
+        ##########################################################################CLINICAL_ENCOUNTERS##########################################################################
+        df = pd.read_csv('00 - export_results.csv') 
+
+        date = '2024-03-11 00:00:00' 
+        import datetime
+        import os
+        import pandas as pd
+        import numpy as np
+        import vaex
         
+        df['Start Date'] = pd.to_datetime(df["Start Date"])
+        df = df[(df['Start Date'] >= date)]
+        df['Item'].replace("*(Peds) Upper and Lower Respiratory Tract (Clinical Domains)", "*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ", inplace=True)
+        df.to_csv('00 - export_results_org.csv',index=False)
+        COLUMNS=['Student name',
+         'External ID',
+         'Email',
+         'Start Date',
+         'Location',
+         'Checklist',
+         'Checklist status',
+         'Item',
+         'Item status',
+         'Original/Copy',
+         'Signed By',
+         'Time Signed',
+         'Verified By',
+         'Verification Comments',
+         'Verified Date',
+         'Time entered',
+         'Date',
+         'Times observed',
+         'Is proficient',
+         'Needs Practice',
+         'Comments',
+         '*Peds Level of Responsibility',
+         '*Peds Level of Responsibility comments',
+         '*Level of Responsibility',
+         '*Level of Responsibility comments']
+
+        df1 = pd.DataFrame(columns=COLUMNS)
+        df1['Student name'] = ['X']*12
+        
+        A1 = '(Peds) Acute conditions (Clinical Domains)'
+        A2 = '(Peds) Behavior (Clinical Domains)'
+        A3 = '(Peds) Common Newborn Conditions (Clinical Domains)'
+        A4 = '(Peds) Dermatologic Conditions (Clinical Domains)'
+        A5 = '(Peds) Gastro-intestinal (Clinical Domains)'
+        A6 = '(Peds) Health Supervision-Well Child Visit'
+        A7 = '(Peds) Health Systems Encounter'
+        A8 = '(Peds) Humanities Encounter'
+        A9 = '(Peds) Other (Clinical Domains)'
+        A10 = '(Peds) Procedure Interpretations'
+        A11 = '(Peds) Upper and Lower Respiratory Tract (Clinical Domains) '
+
 if __name__ == "__main__":
     main()
 
