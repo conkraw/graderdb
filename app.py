@@ -39,8 +39,8 @@ def main():
         
         if csv_content:
             # Display the first few rows of the dataframe as a preview
-            st.write("Preview of the data:")
-            st.dataframe(df.head())  # Show the first 5 rows of the dataframe
+            #st.write("Preview of the data:")
+            #st.dataframe(df.head())  # Show the first 5 rows of the dataframe
 
             # Button to go to the next screen
             if st.button("Next"):
@@ -51,10 +51,25 @@ def main():
 
     # Check if data has been stored in session_state from the previous screen
     if "csv_file" in st.session_state:
-        st.write("Accessing saved data from previous step:")
-        # Display the data from session state (CSV or dataframe)
-        st.write(st.session_state.df)
-        st.download_button("Download CSV", st.session_state.csv_file, file_name="clinical_assessment.csv")
+        COURSE = "Pediatric Clerkship"
+        df = df.loc[df['Course'] == COURSE]
+        df = df.loc[:, df.columns != 'Course ID']
+        df2 = [['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
+        b1='knowledge_for_practice'
+        b2='clinical_reasoning'
+        b3='communication_ptsfamilies'
+        b4='doc_oral'
+        b5='communication_care_team'
+        b6='sum'
+        
+        df2.columns.values[0] = "email"
+        df2.columns.values[1] = "evaluator"
+        df2.columns.values[2] = "evaluator_email"
+        df2.columns.values[3] = b1
+        df2.columns.values[4] = b2
+        df2.columns.values[5] = b3
+        df2.columns.values[6] = b4
+        df2.columns.values[7] = b5
 
 if __name__ == "__main__":
     main()
