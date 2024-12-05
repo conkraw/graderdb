@@ -621,9 +621,11 @@ def main():
         import numpy as np
         
         df['Start Date'] = pd.to_datetime(df["Start Date"])
-        df = df[(df['Start Date'] >= date)]
-        df['Item'].replace("*(Peds) Upper and Lower Respiratory Tract (Clinical Domains)", "*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ", inplace=True)
+        df = df[df['Start Date'] >= date]
+        df['Item'] = df['Item'].replace("*(Peds) Upper and Lower Respiratory Tract (Clinical Domains)", 
+                                "*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ")
         df.to_csv('00 - export_results_org.csv',index=False)
+        
         COLUMNS=['Student name',
          'External ID',
          'Email',
@@ -664,6 +666,105 @@ def main():
         A9 = '(Peds) Other (Clinical Domains)'
         A10 = '(Peds) Procedure Interpretations'
         A11 = '(Peds) Upper and Lower Respiratory Tract (Clinical Domains) '
+
+        A00 = A1
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A2
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A3
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A4
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A5
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A6
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A7
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A8
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A9
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A10
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        A00 = A11
+        df0 = df.loc[df['Item'] == A00]
+        df0=df0.groupby('Email').agg({'l_o_r':max})
+        df0['Item'] = A00
+        df0.to_csv(A00+".csv")
+        
+        df01 = pd.read_csv(A1 + ".csv")
+        df02 = pd.read_csv(A2 + ".csv")
+        df03 = pd.read_csv(A3 + ".csv")
+        df04 = pd.read_csv(A4 + ".csv")
+        df05 = pd.read_csv(A5 + ".csv")
+        df06 = pd.read_csv(A6 + ".csv")
+        df07 = pd.read_csv(A7 + ".csv")
+        df08 = pd.read_csv(A8 + ".csv")
+        df09 = pd.read_csv(A9 + ".csv")
+        df10 = pd.read_csv(A10 + ".csv")
+        df11 = pd.read_csv(A11 + ".csv")
+        
+        dfx=pd.DataFrame(columns=df0.columns)
+        dfx=pd.concat([dfx,df01,df02,df03,df04,df05,df06,df07,df08,df09,df10,df11])
+        dfx = dfx[['Email','Item','l_o_r']]
+        dfx.to_csv(XX,index=False)
+        
+        df = pd.read_csv(XX)
+        df = df.loc[(df['l_o_r'] == 2)]
+        df['observed_alternate'] = df['l_o_r'].astype(str)
+        df = df[['Email','observed_alternate']]
+        x1=df.groupby('Email').count()['observed_alternate']
+        
+        x1.to_csv('observed_alternate.csv')
+
+        df = pd.read_csv(XX)
+        list(df)
+        df = df.loc[(df['l_o_r'] == 3)]
+        df['performed'] = df['l_o_r'].astype(str)
+        df = df[['Email','performed']]
+        x1=df.groupby('Email').count()['performed']
+        x1.to_csv('performed.csv')
 
 if __name__ == "__main__":
     main()
