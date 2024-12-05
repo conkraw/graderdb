@@ -619,7 +619,6 @@ def main():
         import os
         import pandas as pd
         import numpy as np
-        import vaex
         
         df['Start Date'] = pd.to_datetime(df["Start Date"])
         df = df[(df['Start Date'] >= date)]
