@@ -54,7 +54,9 @@ def main():
         COURSE = "Pediatric Clerkship"
         df = df.loc[df['Course'] == COURSE]
         df = df.loc[:, df.columns != 'Course ID']
+        
         df2 = df[['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
+        
         b1='knowledge_for_practice'
         b2='clinical_reasoning'
         b3='communication_ptsfamilies'
@@ -71,6 +73,76 @@ def main():
         df2.columns.values[6] = b4
         df2.columns.values[7] = b5
 
+        df3 = df2[['email',b1,b2,b3,b4,b5]]
+
+        df3.to_csv('OTFconvert.csv',index=False)
+        
+        df = pd.read_csv('OTFconvert.csv')
+        
+        xf = round(df.T.fillna(df.mean(numeric_only=True,axis=1)).T,2)
+        
+        xf.to_csv('OTFconvert.csv',index=False)
+        
+        xf = pd.read_csv('OTFconvert.csv')
+        
+        xf['sum'] = xf.sum(axis=1, numeric_only=True)
+        
+        xf['sum'] = xf['sum']*4
+        
+        xf['distinct_count'] = xf.groupby(['email'])['email'].transform('count')
+        
+        xf.to_csv('OTFconvert.csv',index=False)
+        
+        xf = pd.read_csv('OTFconvert.csv')
+        
+        lo = xf[xf['distinct_count'] <4]
+        
+        hi = xf[xf['distinct_count'] >=4]
+        
+        #REMOVE BLANK EVALS
+        hi = hi.loc[hi['sum'] != 0]
+        
+        min_value = hi.groupby('email')['sum'].min()
+        
+        hi = hi.merge(min_value, on='email',suffixes=('', '_min'))
+        
+        hi['sum1'] = hi['sum'].astype(int)
+        
+        hi['sum_min1'] = hi['sum_min'].astype(int)
+        
+        hi['min'] = np.where(hi['sum1'] == hi['sum_min1'], 'min', 'not_min')
+        
+        minmin = hi.loc[hi['min'] == "min"]
+        notmin = hi.loc[hi['min'] != "min"]
+        
+        minmin.to_csv('minmin.csv',index=False)
+        
+        minmin = pd.read_csv('minmin.csv')
+        
+        minmin['distinct_countx'] = minmin.groupby('email').cumcount().add(1)
+        
+        min_value = minmin.groupby('email')['distinct_countx'].min()
+        
+        minmin = minmin.merge(min_value, on='email',suffixes=('', '_min'))
+        
+        minmin['distinct_countx'] = minmin['distinct_countx'].astype(int)
+        
+        minmin['distinct_countx_min'] = minmin['distinct_countx_min'].astype(int)
+        
+        minmin['minx'] = np.where(minmin['distinct_countx'] == minmin['distinct_countx_min'], 'minx', 'not_minx')
+        
+        minmin = minmin.loc[minmin['minx'] == "not_minx"]
+        
+        minmin = minmin[['email','knowledge_for_practice','clinical_reasoning','communication_ptsfamilies','doc_oral','communication_care_team','sum','distinct_count','sum_min','sum1','sum_min1','min']]
+        
+        hi = pd.concat([minmin,notmin])
+        hi = hi[['email','knowledge_for_practice','clinical_reasoning','communication_ptsfamilies','doc_oral','communication_care_team','sum','distinct_count']]
+        
+        co = pd.concat([hi,lo])
+        
+        co.to_csv('OTFconvert.csv',index=False)
+
+        
 if __name__ == "__main__":
     main()
 
