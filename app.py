@@ -54,7 +54,7 @@ def main():
         COURSE = "Pediatric Clerkship"
         df = df.loc[df['Course'] == COURSE]
         df = df.loc[:, df.columns != 'Course ID']
-        df2 = [['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
+        df2 = df[['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
         b1='knowledge_for_practice'
         b2='clinical_reasoning'
         b3='communication_ptsfamilies'
