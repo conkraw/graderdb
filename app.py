@@ -521,24 +521,7 @@ def main():
         
         df = df.loc[:, df.columns != 'Course ID']
         
-        col = df.columns
-        
-        xf201 = pd.DataFrame({'col':col})
-        
-        xf201['no'] = xf201.index
-        
-        XX = xf201 ['type'] = "A" + xf201['no'].astype(str) + "=" + "'" + xf201['col'].astype(str) + "'"
-        
-        import numpy as np 
-        numpy_array=XX.to_numpy()
-        np.savetxt("XX.py",numpy_array, fmt="%s")
-        
-        exec(open('XX.py').read())
-        
-        xf201.to_csv('col.csv')
-        #numpy and activate literal strings
-        
-        df2 = df[[A9,A15,A18,A36,A43,A50,A57,A64]]
+        df2 = df[['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
         
         b1='knowledge_for_practice'
         b2='clinical_reasoning'
