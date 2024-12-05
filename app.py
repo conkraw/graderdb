@@ -612,160 +612,76 @@ def main():
         
         st.dataframe(df)
         ##########################################################################CLINICAL_ENCOUNTERS##########################################################################
-        df = pd.read_csv('00 - export_results.csv') 
-
-        date = '2024-03-11 00:00:00' 
         import datetime
         import os
         import pandas as pd
         import numpy as np
-        
+
+        items = ['(Peds) Acute conditions (Clinical Domains)',
+                 '(Peds) Behavior (Clinical Domains)',
+                 '(Peds) Common Newborn Conditions (Clinical Domains)',
+                 '(Peds) Dermatologic Conditions (Clinical Domains)',
+                 '(Peds) Gastro-intestinal (Clinical Domains)',
+                 '(Peds) Health Supervision-Well Child Visit',
+                 '(Peds) Health Systems Encounter',
+                 '(Peds) Humanities Encounter',
+                 '(Peds) Other (Clinical Domains)',
+                 '(Peds) Procedure Interpretations',
+                 '(Peds) Upper and Lower Respiratory Tract (Clinical Domains) '
+                ]
+
+        def process_item(df, item):
+            df_item = df[df['Item'] == item]
+            df_item = df_item.groupby('Email').agg({'l_o_r': 'max'})
+            df_item['Item'] = item
+            return df_item
+
+        df = pd.read_csv('00 - export_results.csv') 
+
+        date = '2024-03-11 00:00:00' 
+
         df['Start Date'] = pd.to_datetime(df["Start Date"])
         df = df[df['Start Date'] >= date]
+        
         df['Item'] = df['Item'].replace("*(Peds) Upper and Lower Respiratory Tract (Clinical Domains)", 
                                 "*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ")
+        
         df.to_csv('00 - export_results_org.csv',index=False)
-        
-        COLUMNS=['Student name',
-         'External ID',
-         'Email',
-         'Start Date',
-         'Location',
-         'Checklist',
-         'Checklist status',
-         'Item',
-         'Item status',
-         'Original/Copy',
-         'Signed By',
-         'Time Signed',
-         'Verified By',
-         'Verification Comments',
-         'Verified Date',
-         'Time entered',
-         'Date',
-         'Times observed',
-         'Is proficient',
-         'Needs Practice',
-         'Comments',
-         '*Peds Level of Responsibility',
-         '*Peds Level of Responsibility comments',
-         '*Level of Responsibility',
-         '*Level of Responsibility comments']
+    
+        df1 = pd.DataFrame({
+            'Student name': ['X'] * 12,
+            'Item': items,
+            '*Peds Level of Responsibility': ['Performed'] * 12
+        })
+        df1 = df1.fillna('X')
 
-        df1 = pd.DataFrame(columns=COLUMNS)
-        df1['Student name'] = ['X']*12
-        
-        A1 = '(Peds) Acute conditions (Clinical Domains)'
-        A2 = '(Peds) Behavior (Clinical Domains)'
-        A3 = '(Peds) Common Newborn Conditions (Clinical Domains)'
-        A4 = '(Peds) Dermatologic Conditions (Clinical Domains)'
-        A5 = '(Peds) Gastro-intestinal (Clinical Domains)'
-        A6 = '(Peds) Health Supervision-Well Child Visit'
-        A7 = '(Peds) Health Systems Encounter'
-        A8 = '(Peds) Humanities Encounter'
-        A9 = '(Peds) Other (Clinical Domains)'
-        A10 = '(Peds) Procedure Interpretations'
-        A11 = '(Peds) Upper and Lower Respiratory Tract (Clinical Domains) '
+        df2 = pd.concat([df, df1])
 
-        A00 = A1
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A2
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A3
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A4
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A5
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A6
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A7
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A8
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A9
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A10
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        A00 = A11
-        df0 = df.loc[df['Item'] == A00]
-        df0=df0.groupby('Email').agg({'l_o_r':max})
-        df0['Item'] = A00
-        df0.to_csv(A00+".csv")
-        
-        df01 = pd.read_csv(A1 + ".csv")
-        df02 = pd.read_csv(A2 + ".csv")
-        df03 = pd.read_csv(A3 + ".csv")
-        df04 = pd.read_csv(A4 + ".csv")
-        df05 = pd.read_csv(A5 + ".csv")
-        df06 = pd.read_csv(A6 + ".csv")
-        df07 = pd.read_csv(A7 + ".csv")
-        df08 = pd.read_csv(A8 + ".csv")
-        df09 = pd.read_csv(A9 + ".csv")
-        df10 = pd.read_csv(A10 + ".csv")
-        df11 = pd.read_csv(A11 + ".csv")
-        
-        dfx=pd.DataFrame(columns=df0.columns)
-        dfx=pd.concat([dfx,df01,df02,df03,df04,df05,df06,df07,df08,df09,df10,df11])
-        dfx = dfx[['Email','Item','l_o_r']]
-        dfx.to_csv(XX,index=False)
-        
-        df = pd.read_csv(XX)
-        df = df.loc[(df['l_o_r'] == 2)]
-        df['observed_alternate'] = df['l_o_r'].astype(str)
-        df = df[['Email','observed_alternate']]
-        x1=df.groupby('Email').count()['observed_alternate']
-        
-        x1.to_csv('observed_alternate.csv')
+        df2['Item'] = df2['Item'].str.replace("*", "", regex=True)
+        df2['Item'] = df2['Item'].str.replace("/", "-", regex=True)
 
-        df = pd.read_csv(XX)
-        list(df)
-        df = df.loc[(df['l_o_r'] == 3)]
-        df['performed'] = df['l_o_r'].astype(str)
-        df = df[['Email','performed']]
-        x1=df.groupby('Email').count()['performed']
-        x1.to_csv('performed.csv')
+        # Process each item and save to CSV
+        df_combined = pd.DataFrame(columns=['Email', 'Item', 'l_o_r'])
 
+        for item in items:
+            df_item = process_item(df2, item)
+            df_combined = pd.concat([df_combined, df_item])
+        
+        # Save the combined data
+        df_combined = df_combined[['Email', 'Item', 'l_o_r']]
+        df_combined.to_csv('00 - export_results.csv', index=False)
+        
+        # Now, handle 'l_o_r' values
+        df_combined = pd.read_csv('00 - export_results.csv')
+        
+        # Processing for 'observed_alternate' and 'performed'
+        for value, new_column in [(2, 'observed_alternate'), (3, 'performed')]:
+            df_filtered = df_combined[df_combined['l_o_r'] == value]
+            df_filtered[new_column] = df_filtered['l_o_r'].astype(str)
+            df_filtered = df_filtered[['Email', new_column]]
+            count_series = df_filtered.groupby('Email').count()[new_column]
+            count_series.to_csv(f'{new_column}.csv')
+                
 if __name__ == "__main__":
     main()
 
