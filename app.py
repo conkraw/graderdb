@@ -94,6 +94,11 @@ def main():
 
         df3.to_csv('OTFconvert.csv',index=False)
         
+        import streamlit as st
+        import pandas as pd
+        import numpy as np
+        import io
+        
         df = pd.read_csv('OTFconvert.csv')
         
         xf = round(df.T.fillna(df.mean(numeric_only=True,axis=1)).T,2)
