@@ -14,7 +14,7 @@ def save_file_as_csv(uploaded_file):
             df = pd.read_csv(uploaded_file)
         elif file_extension == "xlsx":
             # Read the Excel file into a Pandas DataFrame
-            df = pd.read_excel(uploaded_file)
+            df = pd.read_excel(uploaded_file,engine='openpyxl')
         else:
             raise ValueError("File must be CSV or Excel format.")
         
