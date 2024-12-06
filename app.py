@@ -50,7 +50,7 @@ def main():
     uploaded_file_6 = st.file_uploader("Developmental Assessments Labels", type=["csv", "xlsx"])
 
     # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_7 = st.file_uploader("Developmental Assessments Labels", type=["csv", "xlsx"])
+    uploaded_file_7 = st.file_uploader("NBME Exam", type=["csv", "xlsx"])
     
     if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7  is not None:
         # Save and convert the first file to CSV when uploaded
