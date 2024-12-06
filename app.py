@@ -798,7 +798,7 @@ def main():
         df.to_csv('observedhp.csv',index=False)
         
         FILETOMAP = "observedhp.csv"
-        RECORDIDMAPPER = recordidmapper.csv'
+        RECORDIDMAPPER = 'recordidmapper.csv'
         COLUMN = 'email'
         
         df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
