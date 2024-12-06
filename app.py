@@ -34,9 +34,6 @@ def main():
     import io
     st.title("Clinical Assessment of Student Forms")
     st.write("Please upload the Clinical Assessment of Student Forms files (CSV or Excel format).")
-
-    # File uploader for the second file (accepting both CSV and XLSX formats)
-    #uploaded_file_1 = st.file_uploader("Upload Record ID Mapper (CSV or Excel)", type=["csv", "xlsx"])
     
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_2 = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
@@ -50,11 +47,8 @@ def main():
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_5 = st.file_uploader("Observed HP(CSV or Excel)", type=["csv", "xlsx"])
     
-    #if uploaded_file_1 is not None and uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
     if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
         # Save and convert the first file to CSV when uploaded
-        #csv_content_1, df_1 = save_file_as_csv(uploaded_file_1)
-        
         csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
 
         csv_content_3, df_3 = save_file_as_csv(uploaded_file_3)
@@ -63,18 +57,7 @@ def main():
         
         csv_content_5, df_5 = save_file_as_csv(uploaded_file_5)
         
-        #if csv_content_1 and csv_content_2 and csv_content_3:
         if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5:
-            # Display the first few rows of each dataframe as a preview
-            #st.write("Preview of File 1 Data:")
-            #st.dataframe(df_1.head())  # Show the first 5 rows of the first file
-
-            #st.write("Preview of File 2 Data:")
-            #st.dataframe(df_2.head())  # Show the first 5 rows of the second file
-
-            #st.write("Preview of File 3 Data:")
-            #st.dataframe(df_3.head())  # Show the first 5 rows of the second file
-            
             # Button to go to the next screen
             if st.button("Next"):
                 # You can now access the CSV content and df of both files in the next screen
@@ -95,12 +78,10 @@ def main():
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    #elif uploaded_file_1 is None or uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
     elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
         st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    #if "csv_file_1" in st.session_state and "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state:
     if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state: 
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
