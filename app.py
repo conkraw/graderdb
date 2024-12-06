@@ -43,8 +43,14 @@ def main():
 
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_3 = st.file_uploader("Upload Clinical Encounters File (CSV or Excel)", type=["csv", "xlsx"])
+
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_4 = st.file_uploader("Observed Handoff(CSV or Excel)", type=["csv", "xlsx"])
+
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_5 = st.file_uploader("Observed HP(CSV or Excel)", type=["csv", "xlsx"])
     
-    if uploaded_file_1 is not None and uploaded_file_2 and uploaded_file_3 is not None:
+    if uploaded_file_1 is not None and uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
         # Save and convert the first file to CSV when uploaded
         csv_content_1, df_1 = save_file_as_csv(uploaded_file_1)
         
@@ -52,16 +58,20 @@ def main():
 
         csv_content_3, df_3 = save_file_as_csv(uploaded_file_3)
         
+        csv_content_4, df_4 = save_file_as_csv(uploaded_file_3)
+        
+        csv_content_5, df_5 = save_file_as_csv(uploaded_file_3)
+        
         if csv_content_1 and csv_content_2 and csv_content_3:
             # Display the first few rows of each dataframe as a preview
-            st.write("Preview of File 1 Data:")
-            st.dataframe(df_1.head())  # Show the first 5 rows of the first file
+            #st.write("Preview of File 1 Data:")
+            #st.dataframe(df_1.head())  # Show the first 5 rows of the first file
 
-            st.write("Preview of File 2 Data:")
-            st.dataframe(df_2.head())  # Show the first 5 rows of the second file
+            #st.write("Preview of File 2 Data:")
+            #st.dataframe(df_2.head())  # Show the first 5 rows of the second file
 
-            st.write("Preview of File 3 Data:")
-            st.dataframe(df_3.head())  # Show the first 5 rows of the second file
+            #st.write("Preview of File 3 Data:")
+            #st.dataframe(df_3.head())  # Show the first 5 rows of the second file
             
             # Button to go to the next screen
             if st.button("Next"):
@@ -74,20 +84,27 @@ def main():
 
                 st.session_state.csv_file_3 = csv_content_3
                 st.session_state.df_3 = df_3
+
+                st.session_state.csv_file_4 = csv_content_4
+                st.session_state.df_4 = df_4
+
+                st.session_state.csv_file_5 = csv_content_5
+                st.session_state.df_5 = df_5
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    elif uploaded_file_1 is None or uploaded_file_2 or uploaded_file_3 is None:
-        st.warning("Please upload both files to proceed.")
+    elif uploaded_file_1 is None or uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
+        st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_1" in st.session_state and "csv_file_2" and "csv_file_3" in st.session_state:
+    if "csv_file_1" in st.session_state and "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state:
         
         df_1.to_csv('recordidmapper.csv',index=False)
         df_2.to_csv('00 - originaloasis.csv',index=False)
         df_3.to_csv('00 - export_results.csv',index=False)
+        df_4.to_csv('00 - originalhandoff.csv'index=False)
+        df_5.to_csv('00 - originalobservedHP.csv',index=False)
         
-        x = df_3['*Peds Level of Responsibility'].unique().tolist()
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
         observed.to_csv('00 - observed_report.csv',index=False)
@@ -753,6 +770,204 @@ def main():
         df_filtered.to_csv('observed_report_filtered.csv', index=False)
         
         st.dataframe(df_filtered)
+
+        ##############################################OBSERVED HO##############################################
+        import pandas as pd
+        import numpy as np
+        import csv
+        df = df_4
+        
+        df = pd.read_csv('00 - originalobservedHP.csv')
+        
+        df = df.loc[df['Course'] == "Pediatric Clerkship"]
+        
+        #df = df.loc[df['Course'] == "Testing for Peds QR Eval"]
+        
+        df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value', '6 Multiple Choice Value']]
+        
+        hx = df[['Student Email','2 Multiple Choice Value']]
+        pe = df[['Student Email','6 Multiple Choice Value']]
+        
+        hx.to_csv('hx_lor.csv')
+        pe.to_csv('pe_lor.csv')
+        
+        df['obhp_submissions'] = 1
+        
+        df['email'] = df['Student Email'].astype(str)
+        
+        df.to_csv('observedhp.csv',index=False)
+        
+        FILETOMAP = "observedhp.csv"
+        RECORDIDMAPPER = recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','obhp_submissions']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('observedhp.csv')
+        df2 = df.groupby('record_id')['obhp_submissions'].agg(['count'])
+        df2.to_csv('observedhpcount.csv')
+        
+        df = pd.read_csv('observedhpcount.csv')
+        df.rename(columns={df.columns[1]: "obhp_submissions" }, inplace = True)
+        
+        df.to_csv('x07 - observedhp.csv',index=False)
+        
+        
+        #######################################################################################################################
+        
+        df = pd.read_csv('hx_lor.csv')
+        
+        df2 = df.groupby('Student Email')['2 Multiple Choice Value'].max()
+        
+        df2.to_csv('hx_lor.csv')
+        
+        df2 = pd.read_csv('hx_lor.csv')
+        
+        df2.rename(columns={df2.columns[0]: "email" }, inplace = True)
+        df2.rename(columns={df2.columns[1]: "hx_lor" }, inplace = True)
+        
+        df2.to_csv('hx_lor.csv',index=False)
+        
+        FILETOMAP = "hx_lor.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','hx_lor']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        
+        FILETOMAP = 'x07 - observedhp.csv'
+        RECORDIDMAPPER = 'hx_lor.csv'
+        COLUMN = 'record_id'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('hx_lor.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['hx_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        #######################################################################################################################
+        
+        df = pd.read_csv('pe_lor.csv')
+        
+        df2 = df.groupby('Student Email')['6 Multiple Choice Value'].max()
+        
+        df2.to_csv('pe_lor.csv')
+        
+        df2 = pd.read_csv('pe_lor.csv')
+        
+        df2.rename(columns={df2.columns[0]: "email" }, inplace = True)
+        df2.rename(columns={df2.columns[1]: "pe_lor" }, inplace = True)
+        
+        df2.to_csv('pe_lor.csv',index=False)
+        
+        FILETOMAP = "pe_lor.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','pe_lor']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        
+        FILETOMAP = 'x07 - observedhp.csv'
+        RECORDIDMAPPER = 'pe_lor.csv'
+        COLUMN = 'record_id'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('pe_lor.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['pe_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        ##############################################OBSERVED HP##############################################
         
 if __name__ == "__main__":
     main()
