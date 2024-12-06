@@ -32,7 +32,7 @@ def main():
     import pandas as pd
     import numpy as np
     import io
-    st.title("Clinical Assessment of Student Forms")
+    st.title("Grader Database Uploader")
     st.write("Please upload files (CSV or Excel format).")
     
     # File uploader for the first file (accepting both CSV and XLSX formats)
