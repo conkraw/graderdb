@@ -36,7 +36,7 @@ def main():
     st.write("Please upload the Clinical Assessment of Student Forms files (CSV or Excel format).")
 
     # File uploader for the second file (accepting both CSV and XLSX formats)
-    uploaded_file_1 = st.file_uploader("Upload Record ID Mapper (CSV or Excel)", type=["csv", "xlsx"])
+    #uploaded_file_1 = st.file_uploader("Upload Record ID Mapper (CSV or Excel)", type=["csv", "xlsx"])
     
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_2 = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
@@ -50,9 +50,10 @@ def main():
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_5 = st.file_uploader("Observed HP(CSV or Excel)", type=["csv", "xlsx"])
     
-    if uploaded_file_1 is not None and uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
+    #if uploaded_file_1 is not None and uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
+    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
         # Save and convert the first file to CSV when uploaded
-        csv_content_1, df_1 = save_file_as_csv(uploaded_file_1)
+        #csv_content_1, df_1 = save_file_as_csv(uploaded_file_1)
         
         csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
 
@@ -76,8 +77,8 @@ def main():
             # Button to go to the next screen
             if st.button("Next"):
                 # You can now access the CSV content and df of both files in the next screen
-                st.session_state.csv_file_1 = csv_content_1
-                st.session_state.df_1 = df_1
+                #st.session_state.csv_file_1 = csv_content_1
+                #st.session_state.df_1 = df_1
                 
                 st.session_state.csv_file_2 = csv_content_2
                 st.session_state.df_2 = df_2
@@ -93,13 +94,18 @@ def main():
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    elif uploaded_file_1 is None or uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
+    #elif uploaded_file_1 is None or uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
+    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
         st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_1" in st.session_state and "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state:
-        
-        df_1.to_csv('recordidmapper.csv',index=False)
+    #if "csv_file_1" in st.session_state and "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state:
+    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state: 
+        data = st.secrets["dataset"]["data"]
+        dfx = pd.DataFrame(data)
+        dfx.to_csv('recordidmapper.csv', index=False)
+
+        #df_1.to_csv('recordidmapper.csv',index=False)
         df_2.to_csv('00 - originaloasis.csv',index=False)
         df_3.to_csv('00 - export_results.csv',index=False)
         df_4.to_csv('00 - originalhandoff.csv',index=False)
