@@ -33,8 +33,7 @@ def main():
     import numpy as np
     import io
     st.title("Grader Database Uploader")
-    st.write("Please upload files (CSV or Excel format).")
-    
+
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_2 = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
 
