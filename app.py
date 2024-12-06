@@ -63,7 +63,8 @@ def main():
         
         csv_content_5, df_5 = save_file_as_csv(uploaded_file_5)
         
-        if csv_content_1 and csv_content_2 and csv_content_3:
+        #if csv_content_1 and csv_content_2 and csv_content_3:
+        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5:
             # Display the first few rows of each dataframe as a preview
             #st.write("Preview of File 1 Data:")
             #st.dataframe(df_1.head())  # Show the first 5 rows of the first file
