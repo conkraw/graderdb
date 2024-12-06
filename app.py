@@ -770,12 +770,136 @@ def main():
         df_filtered.to_csv('observed_report_filtered.csv', index=False)
         
         st.dataframe(df_filtered)
-
         ##############################################OBSERVED HO##############################################
         import pandas as pd
         import numpy as np
         import csv
         df = df_4
+        
+        df = pd.read_csv('00 - originalhandoff.csv')
+        
+        df = df.loc[df['Course'] == "Pediatric Clerkship"]
+        
+        #df = df.loc[df['Course'] == "Testing for Peds QR Eval"]
+        
+        df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value']]
+        
+        df.to_csv('ho_lor.csv',index=False)
+        
+        df['obho_submissions'] = 1
+        
+        df['email'] = df['Student Email'].astype(str)
+        
+        df.to_csv('observedho.csv',index=False)
+        
+        FILETOMAP = "observedho.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','obho_submissions']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('observedho.csv')
+        df2 = df.groupby('record_id')['obho_submissions'].agg(['count'])
+        df2.to_csv('observedhocount.csv')
+        
+        df = pd.read_csv('observedhocount.csv')
+        df.rename(columns={df.columns[1]: "obho_submissions" }, inplace = True)
+        
+        df.to_csv('x07 - observedho.csv',index=False)
+        
+        df = pd.read_csv('ho_lor.csv')
+        
+        df2 = df.groupby('Student Email')['2 Multiple Choice Value'].max()
+        
+        df2.to_csv('ho_lor.csv')
+        
+        df2 = pd.read_csv('ho_lor.csv')
+        
+        df2.rename(columns={df2.columns[0]: "email" }, inplace = True)
+        df2.rename(columns={df2.columns[1]: "ho_lor" }, inplace = True)
+        
+        df2.to_csv('ho_lor.csv',index=False)
+        
+        FILETOMAP = "ho_lor.csv"
+        RECORDIDMAPPER = pathxx+'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','ho_lor']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        FILETOMAP = 'x07 - observedho.csv'
+        RECORDIDMAPPER = 'ho_lor.csv'
+        COLUMN = 'record_id'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('ho_lor.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['ho_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+
+        ##############################################OBSERVED HP##############################################
+        import pandas as pd
+        import numpy as np
+        import csv
+        df = df_5
         
         df = pd.read_csv('00 - originalobservedHP.csv')
         
