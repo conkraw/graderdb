@@ -1098,8 +1098,54 @@ def main():
         df['pe_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
         
         df.to_csv(FILETOMAP,index=False)
-        ##############################################OBSERVED HP##############################################
+        ##############################################ENDING##############################################
+        import pandas as pd
+        df = pd.read_csv('recordidmapper.csv')
+        df = df.loc[:, df.columns != 'email']
+        df = df.loc[:, df.columns !='email_2']
+        df = df.loc[:, df.columns !='student']
+        df = df.loc[:, df.columns !='rotation']
+        df.to_csv('mainfile.csv',index=False)
         
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x01 - clinical_domains.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Get column names to map (excluding 'record_id' and 'email' columns)
+        col_names = df_map.columns[2:]  # Adjust this to skip 'record_id' and 'email'
+        
+        # Step 3: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']  # Assumes 'record_id' is the first column
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                # For each record_id, map the values from the domain columns (clindom_*)
+                mapping_dict[record_id] = row[2:].to_dict()  # Skipping 'record_id' and 'email' columns
+        
+        # Step 4: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            # Map values from df_original['record_id'] to the corresponding values in mapping_dict
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 5: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+
+        csv_data = df_original.to_csv(index=False)
+
+        st.download_button(
+            label="Download Modified CSV",
+            data=csv_data,
+            file_name="mainfile_for_upload.csv",
+            mime="text/csv"
+        )
+                
 if __name__ == "__main__":
     main()
 
