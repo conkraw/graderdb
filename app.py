@@ -693,7 +693,7 @@ def main():
         
         df.insert(0, 'record_id', first_column)
         
-        df = df.loc[df['email'] != 'x']
+        df = df.loc[df['Email'] != 'x']
         
         df.to_csv(FILETOMAP,index=False)
     
