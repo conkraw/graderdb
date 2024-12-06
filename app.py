@@ -48,8 +48,11 @@ def main():
 
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_6 = st.file_uploader("Developmental Assessments Labels", type=["csv", "xlsx"])
+
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_7 = st.file_uploader("Developmental Assessments Labels", type=["csv", "xlsx"])
     
-    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
+    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7  is not None:
         # Save and convert the first file to CSV when uploaded
         csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
 
@@ -60,14 +63,12 @@ def main():
         csv_content_5, df_5 = save_file_as_csv(uploaded_file_5)
 
         csv_content_6, df_6 = save_file_as_csv(uploaded_file_6)
+
+        csv_content_7, df_7 = save_file_as_csv(uploaded_file_7)
         
-        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6:
+        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6 and csv_content_7:
             # Button to go to the next screen
             if st.button("Next"):
-                # You can now access the CSV content and df of both files in the next screen
-                #st.session_state.csv_file_1 = csv_content_1
-                #st.session_state.df_1 = df_1
-                
                 st.session_state.csv_file_2 = csv_content_2
                 st.session_state.df_2 = df_2
 
@@ -82,14 +83,17 @@ def main():
 
                 st.session_state.csv_file_6 = csv_content_6
                 st.session_state.df_6 = df_6
+
+                st.session_state.csv_file_7 = csv_content_7
+                st.session_state.df_7 = df_7
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 is None:
+    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 or uploaded_file_7 is None:
         st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" in st.session_state: 
+    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" and "csv_file_7" in st.session_state: 
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
@@ -100,6 +104,7 @@ def main():
         df_4.to_csv('00 - originalhandoff.csv',index=False)
         df_5.to_csv('00 - originalobservedHP.csv',index=False)
         df_6.to_csv('00 - originaldevass.csv',index=False)
+        df_7.to_csv('00 - NBME_results.csv',index=False)
         
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
@@ -1138,7 +1143,65 @@ def main():
         df['submitted_dev'] = df['submitted_dev'].dt.strftime('%m-%d-%Y')
         
         df.to_csv('x08 - devass.csv',index=False)
+        #####################################################NBME###################################################################
+        import pandas as pd
+        df = pd.read_csv('00 - NBME_results.csv')
         
+        A = 'Email'
+        a = 'email'
+        
+        B = 'NBME Exam - Percentage Score'
+        b = 'nbme'
+        
+        C = 'Final Course Grade'
+        c = 'finalgrade'
+        
+        df2 = df.rename(columns={A: a,
+                                 B: b,
+                                 C:c})
+        
+        df3 = df2[['email','nbme','finalgrade']]
+        df3.to_csv('nbme.csv',index=False)
+        
+        FILETOMAP = "nbme.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','nbme']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv(FILETOMAP)
+        df.to_csv('x09 - nbme.csv',index=False)
+                
         ##############################################ENDING##############################################
         import pandas as pd
         df = pd.read_csv('recordidmapper.csv')
