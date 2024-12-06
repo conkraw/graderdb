@@ -624,7 +624,7 @@ def main():
         df = df[df['Start Date'] >= date]
         df.to_csv('00 - export_results.csv',index=False)
         
-        df = df[['Email','Start Date','Item','*Peds Level of Responsibility']]
+        df = df[['Email', 'Start Date', 'Item', '*Peds Level of Responsibility', 'Time entered']]
         
         # List of all items that should appear as columns
         items = [
@@ -656,7 +656,7 @@ def main():
             '*(Peds) Humanities Encounter': 'clindom_humanities'
         }
         
-        # Count occurrences of each unique 'Item' per 'Email'
+        # Count occurrences of each unique 'Item' per 'Email' for all encounters
         item_counts = df.groupby(['Email', 'Item']).size().unstack(fill_value=0)
         
         # Reindex the item_counts dataframe to ensure all items appear as columns
@@ -665,8 +665,37 @@ def main():
         # Rename the columns according to the mapping
         item_counts = item_counts.rename(columns=rename_dict)
         
+        # Count the number of "Performed" or "Assisted" encounters
+        # Create a "Performed" count column (including "Performed" and "Assisted")
+        performed_counts = df[df['*Peds Level of Responsibility'].isin(['Performed', 'Assisted'])].groupby('Email').size()
+        
+        # Count the number of "Observed" encounters
+        observed_counts = df[df['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]'].groupby('Email').size()
+        
+        # Merge the counts into the item_counts dataframe
+        item_counts['performed'] = item_counts.index.map(performed_counts).fillna(0).astype(int)
+        item_counts['observed'] = item_counts.index.map(observed_counts).fillna(0).astype(int)
+        
+        # Convert 'Time entered' to datetime format
+        df['Time entered'] = pd.to_datetime(df['Time entered'], format='%m/%d/%Y %I:%M:%S %p')
+        
+        # Find the maximum 'Time entered' for each email
+        max_time = df.groupby('Email')['Time entered'].max().reset_index()
+        
+        # Rename the 'Time entered' column to 'max_time_entered'
+        max_time = max_time.rename(columns={'Time entered': 'max_time_entered'})
+        
+        # Merge the 'max_time_entered' back into the item_counts dataframe
+        item_counts = pd.merge(item_counts, max_time, on='Email', how='left')
+        
+        # Create 'submitted_ce' column based on the max 'Time entered' column
+        item_counts['submitted_ce'] = item_counts['max_time_entered'].dt.strftime('%m-%d-%Y 23:59')
+        
+        # Drop the 'max_time_entered' column after creating 'submitted_ce'
+        item_counts = item_counts.drop(columns=['max_time_entered'])
+        
         # Reset index to match the original DataFrame structure
-        item_counts.reset_index(inplace=True)
+        item_counts.reset_index(inplace=False)
 
         item_counts.to_csv('x01 - clinical_domains.csv',index=False)
 
