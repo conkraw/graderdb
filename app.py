@@ -618,7 +618,108 @@ def main():
         import numpy as np
 
         df = pd.read_csv('00 - export_results.csv') 
+        
+        df = df[['Email','Start Date','Item','*Peds Level of Responsibility']]
+        
+        # List of all items that should appear as columns
+        items = [
+            '*(Peds) Health Supervision/Well Child Visit',
+            '*(Peds) Common Newborn Conditions (Clinical Domains)',
+            '*(Peds) Dermatologic Conditions (Clinical Domains)',
+            '*(Peds) Gastro-intestinal (Clinical Domains)',
+            '*(Peds) Behavior (Clinical Domains)',
+            '*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ', 
+            '*(Peds) Acute conditions (Clinical Domains)',
+            '*(Peds) Other (Clinical Domains)',
+            '*(Peds) Procedure Interpretations',
+            '*(Peds) Health Systems Encounter',
+            '*(Peds) Humanities Encounter'
+        ]
+        
+        # The mapping for renaming columns
+        rename_dict = {
+            '*(Peds) Health Supervision/Well Child Visit': 'clindom_well_child',
+            '*(Peds) Common Newborn Conditions (Clinical Domains)': 'clindom_commonnb',
+            '*(Peds) Dermatologic Conditions (Clinical Domains)': 'clindom_derm',
+            '*(Peds) Gastro-intestinal (Clinical Domains)': 'clindom_gi',
+            '*(Peds) Behavior (Clinical Domains)': 'clindom_behavior',
+            '*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ': 'clindom_upperandlowerrt',
+            '*(Peds) Acute conditions (Clinical Domains)': 'clindom_acuteconditions',
+            '*(Peds) Other (Clinical Domains)': 'clindom_other',
+            '*(Peds) Procedure Interpretations': 'clindom_testinterpret',
+            '*(Peds) Health Systems Encounter': 'clindom_healthsystems',
+            '*(Peds) Humanities Encounter': 'clindom_humanities'
+        }
+        
+        # Count occurrences of each unique 'Item' per 'Email'
+        item_counts = df.groupby(['Email', 'Item']).size().unstack(fill_value=0)
+        
+        # Reindex the item_counts dataframe to ensure all items appear as columns
+        item_counts = item_counts.reindex(columns=items, fill_value=0)
+        
+        # Rename the columns according to the mapping
+        item_counts = item_counts.rename(columns=rename_dict)
+        
+        # Reset index to match the original DataFrame structure
+        item_counts.reset_index(inplace=True)
 
+        item_counts.to_csv('x01 - clinical_domains.csv',index=False)
+
+        FILETOMAP = "x01 - clinical_domains.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df = df.loc[df['email'] != 'x']
+        
+        df.to_csv(FILETOMAP,index=False)
+    
+        df = pd.read_csv('00 - export_results.csv') 
+
+        # Select relevant columns
+        df = df[['Email', 'Start Date', 'Item', '*Peds Level of Responsibility']]
+        
+        df = df.loc[(df['Item']!='*(Peds) Health Systems Encounter')&(df['Item']!='*(Peds) Humanities Encounter')]
+        
+        # Filter rows where *Peds Level of Responsibility is "Observed"
+        df_observed = df.loc[df['*Peds Level of Responsibility'] == 
+                             "Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]"]
+        
+        # Now, find students who have "Assisted" or "Performed" for the same Item
+        df_assisted_performed = df.loc[df['*Peds Level of Responsibility'].isin(['Assisted', 'Performed'])]
+        
+        # Merge the two dataframes on Email and Item to find cases where the same student has both "Observed" and "Assisted"/"Performed"
+        merged = pd.merge(df_observed, df_assisted_performed, on=['Email', 'Item'], how='inner')
+        
+        # Get the Email and Item combinations where we found both "Observed" and "Assisted"/"Performed"
+        excluded_items = merged[['Email', 'Item']].drop_duplicates()
+        
+        # Filter out those combinations from the original observed dataframe
+        df_filtered = df_observed[~df_observed[['Email', 'Item']].isin(excluded_items.to_dict('list')).all(axis=1)]
+        
+        # Save the resulting DataFrame to a new CSV
+        df_filtered.to_csv('observed_report_filtered.csv', index=False)
+        
+        st.dataframe(df_filtered)
+        
 if __name__ == "__main__":
     main()
 
