@@ -33,7 +33,7 @@ def main():
     import numpy as np
     import io
     st.title("Clinical Assessment of Student Forms")
-    st.write("Please upload the Clinical Assessment of Student Forms files (CSV or Excel format).")
+    st.write("Please upload files (CSV or Excel format).")
     
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_2 = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
