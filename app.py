@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
+import openpyxl 
 
 # Function to handle file upload and save it as a CSV
 def save_file_as_csv(uploaded_file):
@@ -32,6 +33,8 @@ def main():
     import pandas as pd
     import numpy as np
     import io
+    import openpyxl 
+    
     st.title("Grader Database Uploader")
 
     # File uploader for the first file (accepting both CSV and XLSX formats)
