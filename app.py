@@ -45,6 +45,9 @@ def main():
 
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_5 = st.file_uploader("Observed HP(CSV or Excel)", type=["csv", "xlsx"])
+
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_6 = st.file_uploader("Developmental Assessments Labels", type=["csv", "xlsx"])
     
     if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 is not None:
         # Save and convert the first file to CSV when uploaded
@@ -55,8 +58,10 @@ def main():
         csv_content_4, df_4 = save_file_as_csv(uploaded_file_4)
         
         csv_content_5, df_5 = save_file_as_csv(uploaded_file_5)
+
+        csv_content_6, df_6 = save_file_as_csv(uploaded_file_6)
         
-        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5:
+        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6:
             # Button to go to the next screen
             if st.button("Next"):
                 # You can now access the CSV content and df of both files in the next screen
@@ -74,14 +79,17 @@ def main():
 
                 st.session_state.csv_file_5 = csv_content_5
                 st.session_state.df_5 = df_5
+
+                st.session_state.csv_file_6 = csv_content_6
+                st.session_state.df_6 = df_6
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 is None:
+    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 is None:
         st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" in st.session_state: 
+    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" in st.session_state: 
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
@@ -91,6 +99,7 @@ def main():
         df_3.to_csv('00 - export_results.csv',index=False)
         df_4.to_csv('00 - originalhandoff.csv',index=False)
         df_5.to_csv('00 - originalobservedHP.csv',index=False)
+        df_6.to_csv('00 - originaldevass.csv',index=False)
         
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
@@ -1078,6 +1087,58 @@ def main():
         df['pe_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
         
         df.to_csv(FILETOMAP,index=False)
+        ###################################################DEVELOPMENTAL ASSESSMENTS#########################################################
+        df = pd.read_csv('00 - originaldevass.csv')
+
+        df.rename(columns={df.columns[3]: "email" }, inplace = True)
+        df.rename(columns={df.columns[2]: "submitted_dev" }, inplace = True)
+        
+        df['devass'] = '1'
+        
+        df.to_csv('devass.csv',index=False)
+        
+        FILETOMAP = "devass.csv"
+        RECORDIDMAPPER ='recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','devass','submitted_dev']]
+        
+        df3 = df3.loc[df3['submitted_dev'] != '[not completed]']
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('devass.csv')
+        
+        df['submitted_dev'] = df['submitted_dev'].astype('datetime64[ns]')
+        df['submitted_dev'] = df['submitted_dev'].dt.strftime('%m-%d-%Y')
+        
+        df.to_csv('x08 - devass.csv',index=False)
+        
         ##############################################ENDING##############################################
         import pandas as pd
         df = pd.read_csv('recordidmapper.csv')
