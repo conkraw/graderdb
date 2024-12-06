@@ -672,7 +672,7 @@ def main():
 
         FILETOMAP = "x01 - clinical_domains.csv"
         RECORDIDMAPPER = 'recordidmapper.csv'
-        COLUMN = 'email'
+        COLUMN = 'Email'
         
         import pandas as pd
         import numpy as np
