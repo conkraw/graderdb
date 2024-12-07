@@ -1172,12 +1172,12 @@ def main():
         
         df3.to_csv(FILETOMAP,index=False)
         
-        df = pd.read_csv('devass.csv')
+        #df = pd.read_csv('devass.csv')
         
-        df['submitted_dev'] = df['submitted_dev'].astype('datetime64[ns]')
-        df['submitted_dev'] = df['submitted_dev'].dt.strftime('%m-%d-%Y')
+        df3['submitted_dev'] = df3['submitted_dev'].astype('datetime64[ns]')
+        df3['submitted_dev'] = df3['submitted_dev'].dt.strftime('%m-%d-%Y')
         
-        df.to_csv('x08 - devass.csv',index=False)
+        df3.to_csv('x08 - devass.csv',index=False)
         #####################################################NBME###################################################################
         import pandas as pd
         df = pd.read_csv('00 - NBME_results.csv')
@@ -1819,6 +1819,163 @@ def main():
         import numpy as np
         
         FILETOMAP = "x08 - devass.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x09 - nbme.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz1.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz2.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz3.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz4.csv"
         ORIGINALA = "mainfile.csv"
         
         # Step 1: Read the mapping file and the original file
