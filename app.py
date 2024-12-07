@@ -1441,12 +1441,20 @@ def main():
             
         df['quiz_2_late'] = df[(COLUMN)].map(df1)     
         
-        df['quiz_2_late'] = df['quiz_2_late'].astype('datetime64[ns]')
-        
+        #df['quiz_2_late'] = df['quiz_2_late'].astype('datetime64[ns]')
+        df['quiz_2_late'] = pd.to_datetime(df['quiz_2_late'])
+
         import pytz
         
-        df['quiz_2_late'] = pd.to_datetime(df['quiz_2_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
-        
+        #df['quiz_2_late'] = pd.to_datetime(df['quiz_2_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+
+        if df['quiz_2_late'].dt.tz is None:
+            # Localize the datetime if it's naive, then convert to the desired timezone
+            df['quiz_2_late'] = df['quiz_2_late'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        else:
+            # Just convert if it's already timezone-aware
+            df['quiz_2_late'] = df['quiz_2_late'].dt.tz_convert('US/Eastern')
+
         df['quiz_2_late'] = df['quiz_2_late'].dt.strftime('%m-%d-%Y 23:59')
         
         df.to_csv(FILETOMAP,index=False)
@@ -1544,11 +1552,19 @@ def main():
             
         df['quiz_3_late'] = df[(COLUMN)].map(df1)     
         
-        df['quiz_3_late'] = df['quiz_3_late'].astype('datetime64[ns]')
-        
+        #df['quiz_3_late'] = df['quiz_3_late'].astype('datetime64[ns]')
+
+        df['quiz_3_late'] = pd.to_datetime(df['quiz_3_late'])
+
         import pytz
-        
-        df['quiz_3_late'] = pd.to_datetime(df['quiz_3_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        if df['quiz_3_late'].dt.tz is None:
+            # Localize the datetime if it's naive, then convert to the desired timezone
+            df['quiz_3_late'] = df['quiz_3_late'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        else:
+            # Just convert if it's already timezone-aware
+            df['quiz_3_late'] = df['quiz_3_late'].dt.tz_convert('US/Eastern')
+
+        #df['quiz_3_late'] = pd.to_datetime(df['quiz_3_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
         
         df['quiz_3_late'] = df['quiz_3_late'].dt.strftime('%m-%d-%Y 23:59')
         
@@ -1647,11 +1663,20 @@ def main():
             
         df['quiz_4_late'] = df[(COLUMN)].map(df1)     
         
-        df['quiz_4_late'] = df['quiz_4_late'].astype('datetime64[ns]')
+        #df['quiz_4_late'] = df['quiz_4_late'].astype('datetime64[ns]')
+
         
+        df['quiz_4_late'] = pd.to_datetime(df['quiz_4_late'])
+
         import pytz
+        if df['quiz_4_late'].dt.tz is None:
+            # Localize the datetime if it's naive, then convert to the desired timezone
+            df['quiz_4_late'] = df['quiz_4_late'].dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        else:
+            # Just convert if it's already timezone-aware
+            df['quiz_4_late'] = df['quiz_4_late'].dt.tz_convert('US/Eastern')
         
-        df['quiz_4_late'] = pd.to_datetime(df['quiz_4_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        #df['quiz_4_late'] = pd.to_datetime(df['quiz_4_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
         
         df['quiz_4_late'] = df['quiz_4_late'].dt.strftime('%m-%d-%Y 23:59')
         
