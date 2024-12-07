@@ -63,8 +63,11 @@ def main():
     uploaded_file_10 = st.file_uploader("Canvas Quiz 3", type=["csv", "xlsx"])
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_11 = st.file_uploader("Canvas Quiz 4", type=["csv", "xlsx"])
+
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_12 = st.file_uploader("Preceptor Tracker", type=["csv", "xlsx"])
     
-    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7 and uploaded_file_8 and uploaded_file_9 and uploaded_file_10 and uploaded_file_11  is not None:
+    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7 and uploaded_file_8 and uploaded_file_9 and uploaded_file_10 and uploaded_file_11 and uploaded_file_12 is not None:
         # Save and convert the first file to CSV when uploaded
         csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
 
@@ -83,8 +86,9 @@ def main():
         csv_content_10, df_10 = save_file_as_csv(uploaded_file_10)
         csv_content_11, df_11 = save_file_as_csv(uploaded_file_11)
         
+        csv_content_12, df_12 = save_file_as_csv(uploaded_file_12)
         
-        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6 and csv_content_7 and csv_content_8 and csv_content_9 and csv_content_10 and csv_content_11:
+        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6 and csv_content_7 and csv_content_8 and csv_content_9 and csv_content_10 and csv_content_11 and csv_content_12:
             # Button to go to the next screen
             if st.button("Next"):
                 st.session_state.csv_file_2 = csv_content_2
@@ -116,14 +120,17 @@ def main():
 
                 st.session_state.csv_file_11 = csv_content_11
                 st.session_state.df_11 = df_11
+
+                st.session_state.csv_file_12 = csv_content_12
+                st.session_state.df_12 = df_12
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 or uploaded_file_7 or uploaded_file_8 or uploaded_file_9 or uploaded_file_10 or uploaded_file_11 is None:
+    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 or uploaded_file_7 or uploaded_file_8 or uploaded_file_9 or uploaded_file_10 or uploaded_file_11 or uploaded_file_12 is None:
         st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" and "csv_file_7" and "csv_file_8" and "csv_file_9" and "csv_file_10" and "csv_file_11" in st.session_state: 
+    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" and "csv_file_7" and "csv_file_8" and "csv_file_9" and "csv_file_10" and "csv_file_11" and "csv_file_12" in st.session_state: 
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
@@ -140,6 +147,8 @@ def main():
         df_9.to_csv('00 - canvasquiz2.csv',index=False)
         df_10.to_csv('00 - canvasquiz3.csv',index=False)
         df_11.to_csv('00 - canvasquiz4.csv',index=False)
+
+        df_12.to_csv('00 - ptrackero.csv',index=False)
         
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
@@ -1681,8 +1690,684 @@ def main():
         df['quiz_4_late'] = df['quiz_4_late'].dt.strftime('%m-%d-%Y 23:59')
         
         df.to_csv(FILETOMAP,index=False)
-
-                
+        ################################
+        df = pd.read_csv('00 - ptrackero.csv')
+        df['email'] = df['Student Email'].astype(str)
+        
+        df.to_csv('ptracker.csv',index=False)
+        
+        FILETOMAP = "ptracker.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        #df = df.loc[(df['Manual Evaluations'] != "Mid-Cycle Feedback")&(df['Manual Evaluations'] != "*Mid-Cycle Feedback")]
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = df[['record_id','Faculty Name','Manual Evaluations']]
+        
+        x1 = pd.DataFrame(df['Manual Evaluations'].apply(lambda x: str(x).split('|')).apply(lambda x: [0]*(9-len(x)) + x).to_list(), columns=list("ABCDEFGHI"))
+        
+        df.to_csv('1x.csv',index=False)
+        x1.to_csv('2x.csv',index=False)
+        
+        y1 = pd.read_csv('1x.csv')
+        y2 = pd.read_csv('2x.csv')
+        
+        df = pd.concat([y1,y2],axis=1)
+        
+        df.to_csv('ptracker.csv',index=False)
+        
+        df = pd.read_csv('ptracker.csv')
+        
+        A = df[['record_id','Faculty Name', 'A']]
+        A.columns.values[2] = "x"
+        
+        B = df[['record_id','Faculty Name', 'B']]
+        B.columns.values[2] = "x"
+        
+        C = df[['record_id','Faculty Name', 'C']]
+        C.columns.values[2] = "x"
+        
+        D = df[['record_id','Faculty Name', 'D']]
+        D.columns.values[2] = "x"
+        
+        E = df[['record_id','Faculty Name', 'E']]
+        E.columns.values[2] = "x"
+        
+        F = df[['record_id','Faculty Name', 'F']]
+        F.columns.values[2] = "x"
+        
+        G = df[['record_id','Faculty Name', 'G']]
+        G.columns.values[2] = "x"
+        
+        H = df[['record_id','Faculty Name', 'H']]
+        H.columns.values[2] = "x"
+        
+        I = df[['record_id','Faculty Name', 'I']]
+        I.columns.values[2] = "x"
+        
+        df = pd.concat([A,B,C,D,E,F,G,H,I])
+        
+        df = df[['record_id','Faculty Name', 'x']]
+        
+        df.to_csv('ptracker.csv',index=False)
+        
+        COLUMN = 'x'
+        x = df[(COLUMN)].unique().tolist()
+        
+        oasis_cas = df.loc[(df['x'] == '*Clinical Assessment of Student')]
+        obhp = df.loc[(df['x'] == '*PEDS History Taking & Physical Exam')]
+        obho = df.loc[(df['x'] == '*PEDS Handoff')]
+        
+        oasis_cas.to_csv('oasis_cas.csv',index=False)
+        obhp.to_csv('obhp.csv',index=False)
+        obho.to_csv('obho.csv',index=False)
+        
+        oasis_cas = pd.read_csv('oasis_cas.csv')
+        oasis_cas['distinct_count'] = oasis_cas.groupby(['record_id'])['record_id'].transform('count')
+        oasis_cas_s = oasis_cas[['record_id','distinct_count']]
+        oasis_cas_s.to_csv('oasis_cas_s.csv',index=False)
+        
+        oasis_cas['oasis_cas'] = oasis_cas['Faculty Name'].astype(str) + ","
+        oasis_cas = oasis_cas.groupby('record_id',group_keys=False)['oasis_cas'].apply(' '.join).reset_index()
+        oasis_cas['oasis_cas'] = oasis_cas['oasis_cas'].str.rstrip(',')
+        oasis_cas.to_csv('oasis_cas.csv',index=False)
+        
+        obhp = pd.read_csv('obhp.csv')
+        obhp['distinct_count'] = obhp.groupby(['record_id'])['record_id'].transform('count')
+        obhp_s = obhp[['record_id','distinct_count']]
+        obhp_s.to_csv('obhp_s.csv',index=False)
+        
+        obhp['cas'] = obhp['Faculty Name'].astype(str) + ","
+        obhp = obhp.groupby('record_id',group_keys=False)['cas'].apply(' '.join).reset_index()
+        obhp['cas'] = obhp['cas'].str.rstrip(',')
+        obhp.to_csv('obhp.csv',index=False)
+        
+        obho = pd.read_csv('obho.csv')
+        obho['distinct_count'] = obho.groupby(['record_id'])['record_id'].transform('count')
+        obho_s = obho[['record_id','distinct_count']]
+        obho_s.to_csv('obho_s.csv',index=False)
+        
+        obho['cas'] = obho['Faculty Name'].astype(str) + ","
+        obho = obho.groupby('record_id',group_keys=False)['cas'].apply(' '.join).reset_index()
+        obho['cas'] = obho['cas'].str.rstrip(',')
+        obho.to_csv('obho.csv',index=False)
+        
+        df=pd.read_csv('oasis_cas.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('obhp.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['obhp'] = df[('record_id')].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        mydict = {}
+        with open('obho.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['obho'] = df[('record_id')].map(df1)     
+        
+        df.to_csv('final.csv',index=False)
+        
+        ##################################################################
+        
+        df=pd.read_csv('final.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('oasis_cas_s.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['oasissolicit'] = df[('record_id')].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('final.csv',index=False)
+        
+        
+        ##################################################################
+        
+        df=pd.read_csv('final.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('obho_s.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['obho_s'] = df[('record_id')].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('final.csv',index=False)
+        
+        
+        ##################################################################
+        
+        df=pd.read_csv('final.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('obhp_s.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['obhp_s'] = df[('record_id')].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('final.csv',index=False)
+        
+        ##################################################################
+        
+        df = pd.read_csv('final.csv')
+        df.to_csv('x11 - ptrackero.csv',index=False)
+        
+        ##################################################################ANALYSIS##################################################################
+        import pandas as pd
+        import datetime as dt
+        
+        df = pd.read_csv('00 - originaloasis.csv')
+        y = list(df)
+        #display(y)
+        x = df[['Student Email','Submit Date','Start Date', 'End Date']]
+        x.to_csv('oasisx.csv',index=False)
+        
+        x = pd.read_csv('oasisx.csv')
+        
+        x['Start Date'] = pd.to_datetime(x['Start Date'])
+        x['Submit Date'] = pd.to_datetime(x['Submit Date'])
+        
+        x['Submit Date'] = x['Submit Date'].dt.date
+        
+        x['mid_rotation'] = x['Start Date'] + pd.DateOffset(days=14)
+        x['end_rotation_twoweeks'] = x['Start Date'] + pd.DateOffset(days=39)
+        
+        x.to_csv('oasisx.csv',index=False)
+        
+        import numpy as np
+        import pandas as pd 
+        df = pd.read_csv('oasisx.csv')
+        
+        df['before_midrotation']= np.select([df['Submit Date'].between(df['Start Date'], df['mid_rotation'])], ['Yes'], 'No')
+        df['before_course_end']= np.select([df['Submit Date'].between(df['Start Date'], df['End Date'])], ['Yes'], 'No')
+        df['after_course_end']= np.select([df['Submit Date'].between(df['Start Date'], df['end_rotation_twoweeks'])], ['Yes'], 'No')
+        
+        df['patient_id'] = df['Student Email'].astype(str)
+        df.to_csv('analysis.csv',index=False)
+        
+        df1=pd.read_csv('analysis'+".csv")
+        df2=df1.groupby('Student Email').agg({'Submit Date':min})
+        df2.to_csv('submitdate.csv')
+        
+        import pandas as pd
+        import os
+        import csv
+        
+        path = "recordidmapper.csv"
+        
+        FILETOMAP = 'submitdate.csv'
+        RECORDIDMAPPER = path
+        COLUMN = 'Student Email'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df = df[['record_id','Submit Date']]
+        
+        df.columns.values[1] = "cas_submit_min"
+        
+        df['cas_submit_min'] = df['cas_submit_min'].astype('datetime64[ns]')
+        df['cas_submit_min'] = df['cas_submit_min'].dt.strftime('%m-%d-%Y')
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('00 - originaloasis.csv')
+        
+        df = df.loc[df['Course'] == "Pediatric Clerkship"]
+        
+        df = df.loc[:, df.columns != 'Course ID']
+        
+        df2 = df[['Student Email', 'Evaluator', 'Evaluator Email', '2 Multiple Choice Value', '3 Multiple Choice Value', '4 Multiple Choice Value', '5 Multiple Choice Value', '6 Multiple Choice Value', '8 Answer text', '9 Answer text']]
+        
+        b1='knowledge_for_practice'
+        b2='clinical_reasoning'
+        b3='communication_ptsfamilies'
+        b4='doc_oral'
+        b5='communication_care_team'
+        b6='sum'
+        
+        df2.columns.values[0] = "email"
+        df2.columns.values[1] = "evaluator"
+        df2.columns.values[2] = "evaluator_email"
+        df2.columns.values[3] = b1
+        df2.columns.values[4] = b2
+        df2.columns.values[5] = b3
+        df2.columns.values[6] = b4
+        df2.columns.values[7] = b5
+        
+        df3 = df2[['email',b1,b2,b3,b4,b5]]
+        
+        df3.to_csv('OTFconvert.csv',index=False)
+        
+        df = pd.read_csv('OTFconvert.csv')
+        
+        xf = round(df.T.fillna(df.mean(numeric_only=True,axis=1)).T,2)
+        
+        xf.to_csv('OTFconvert.csv',index=False)
+        
+        xf = pd.read_csv('OTFconvert.csv')
+        
+        xf['sum'] = xf.sum(axis=1, numeric_only=True)
+        
+        xf['sum'] = xf['sum']*4
+        
+        xf['distinct_count'] = xf.groupby(['email'])['email'].transform('count')
+        
+        xf.to_csv('OTFconvert.csv',index=False)
+        
+        FILETOMAP = "OTFconvert.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('OTFconvert.csv')
+        
+        t1=df.loc[df[(b1)]!=0]
+        t2=df.loc[df[(b2)]!=0]
+        t3=df.loc[df[(b3)]!=0]
+        t4=df.loc[df[(b4)]!=0]
+        t5=df.loc[df[(b5)]!=0]
+        t6=df.loc[df[(b6)]!=0]
+        
+        x1=t1.groupby('record_id').mean(numeric_only=True)[b1].round(2)
+        x2=t2.groupby('record_id').mean(numeric_only=True)[b2].round(2)
+        x3=t3.groupby('record_id').mean(numeric_only=True)[b3].round(2)
+        x4=t4.groupby('record_id').mean(numeric_only=True)[b4].round(2)
+        x5=t5.groupby('record_id').mean(numeric_only=True)[b5].round(2)
+        x6=t6.groupby('record_id').mean(numeric_only=True)[b6].round(2)
+        
+        
+        x1.to_csv(b1+".csv")
+        x2.to_csv(b2+".csv")
+        x3.to_csv(b3+".csv")
+        x4.to_csv(b4+".csv")
+        x5.to_csv(b5+".csv")
+        x6.to_csv(b6+".csv")
+        
+        xx=df[['record_id']]
+        
+        yy = xx.drop_duplicates(subset=['record_id'])
+        
+        yy.to_csv('OTF_averages.csv',index=False)
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = b1+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[(b1)] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv(FILETOMAP,dtype=str)
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = b2+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[(b2)] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv(FILETOMAP,dtype=str)
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = b3+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[(b3)] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv(FILETOMAP,dtype=str)
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = b4+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[(b4)] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv(FILETOMAP,dtype=str)
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = b5+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[(b5)] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv(FILETOMAP,dtype=str)
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = b6+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[(b6)] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('OTFconvert.csv')
+        df = df.groupby('record_id')['distinct_count'].min()
+        df.to_csv('distinct_count.csv')
+        
+        FILETOMAP = "OTF_averages.csv"
+        RECORDIDMAPPER = 'distinct_count'+".csv"
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[('distinct_count')] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        import pandas as pd
+        
+        df = pd.read_csv('00 - originaloasis.csv')
+        
+        df = df.loc[df['Course'] == "Pediatric Clerkship"]
+        
+        df = df.loc[:, df.columns != 'Course ID']
+        
+        df = df[['Student Email', '7 Multiple Choice Label']]
+        
+        df['email'] = df['Student Email'].astype(str)
+        df['prof'] = df['7 Multiple Choice Label'].astype(str)
+        
+        df = df[['email','prof']]
+        
+        df.to_csv('prof.csv',index=False)
+        
+        FILETOMAP = "prof.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df = pd.read_csv('prof.csv')
+        
+        df = df[['record_id','prof']]
+        
+        meets = df.loc[df['prof'] == 'No Concern: Awareness of ethical norms with a commitment to ethical behavior.   Strives to act with honesty, integrity, accountability, reliability. May have a perceived lapse in professional behavior, which student rapidly corrects.']
+        does_not_meet = df.loc[df['prof'] == 'Concern: Exhibited lapse(s) in professional behaviors (honesty, integrity, accountability, reliability, adhering to ethical norms)']
+        
+        meets.to_csv('meets.csv', index=False)
+        meets = pd.read_csv('meets.csv')
+        meets['meets'] = meets['prof'].astype(str)
+        
+        does_not_meet.to_csv('does_not_meet.csv', index=False)
+        does_not_meet = pd.read_csv('does_not_meet.csv')
+        does_not_meet['does_not_meet'] = does_not_meet['prof'].astype(str)
+        
+        meets = meets.groupby('record_id')['meets'].count()
+        does_not_meet = does_not_meet.groupby('record_id')['does_not_meet'].count()
+        
+        meets.to_csv('meets.csv')
+        does_not_meet.to_csv('does_not_meet.csv')
+        
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv('OTF_averages.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('meets.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[('meets')] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('OTF_averages.csv',index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv('OTF_averages.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('does_not_meet.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[('does_not_meet')] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('OTF_averages.csv',index=False)
+        
+        df = pd.read_csv('00 - originaloasis.csv')
+        
+        df = df.loc[df['Course'] == "Pediatric Clerkship"]
+        
+        df = df[['Student Email','8 Answer text','9 Answer text']]
+        
+        df.to_csv('comments.csv',index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv('comments.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[2] for rows in reader} 
+            
+        df[('record_id')] = df['Student Email'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df['strengths'] = df['8 Answer text'].astype(str)
+        df['weaknesses'] = df['9 Answer text'].astype(str)
+        
+        df = df[['record_id','strengths','weaknesses']]
+        
+        df.to_csv('comments.csv',index=False)
+        
+        df = pd.read_csv('comments.csv')
+        
+        df['strengths'] = df['strengths'].astype(str)
+        
+        strengths = df.groupby('record_id', group_keys=False)['strengths'].apply('\n'.join).reset_index()
+        
+        df['weaknesses'] = df['weaknesses'].astype(str)
+        
+        weaknesses = df.groupby('record_id', group_keys=False)['weaknesses'].apply('\n'.join).reset_index()
+        
+        strengths.to_csv('strengths.csv',index=False)
+        
+        weaknesses.to_csv('weaknesses.csv',index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv('OTF_averages.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('strengths.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[('strengths')] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('OTF_averages.csv',index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv('OTF_averages.csv',dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('weaknesses.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df[('weaknesses')] = df['record_id'].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('OTF_averages.csv',index=False)
+        
+        import pandas as pd 
+        df = pd.read_csv('OTF_averages.csv')
+        df.to_csv('oasissubmission.csv',index=False)
+        
+        df = pd.read_csv('oasissubmission.csv')
+        df = df [['record_id','sum','does_not_meet']]
+        
+        df.columns.values[1] = "prev_sum_score"
+        df.columns.values[2] = "any_prof_score"
+        
+        df.to_csv('courseanalysis_score.csv',index=False)
+        
+        import pandas as pd
+        import os
+        import csv
+        
+        FILETOMAP = 'submitdate.csv'
+        RECORDIDMAPPER = 'courseanalysis_score.csv'
+        COLUMN = 'record_id'
+        
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['prev_sum_score'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv('x12 - analysis.csv',index=False)
+        
         ##############################################ENDING##############################################
         import pandas as pd
         df = pd.read_csv('recordidmapper.csv')
@@ -2006,6 +2691,68 @@ def main():
         import pandas as pd
         import numpy as np
         
+        FILETOMAP = "x11 - ptrackero.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x12 - analysis.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+
+        import pandas as pd
+        import numpy as np
+        
         # Read the original file
         df_original = pd.read_csv(ORIGINALA)
         
@@ -2021,6 +2768,7 @@ def main():
         
         # Save the cleaned dataframe to a CSV
         df_original.to_csv(ORIGINALA, index=False)
+        
 
         ########################################################################################
         ########################################################################################
