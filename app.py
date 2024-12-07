@@ -54,8 +54,17 @@ def main():
 
     # File uploader for the first file (accepting both CSV and XLSX formats)
     uploaded_file_7 = st.file_uploader("NBME Exam", type=["csv", "xlsx"])
+
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_8 = st.file_uploader("Canvas Quiz 1", type=["csv", "xlsx"])
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_9 = st.file_uploader("Canvas Quiz 2", type=["csv", "xlsx"])
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_10 = st.file_uploader("Canvas Quiz 3", type=["csv", "xlsx"])
+    # File uploader for the first file (accepting both CSV and XLSX formats)
+    uploaded_file_11 = st.file_uploader("Canvas Quiz 4", type=["csv", "xlsx"])
     
-    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7  is not None:
+    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7 and uploaded_file_8 and uploaded_file_9 and uploaded_file_10 and uploaded_file_11  is not None:
         # Save and convert the first file to CSV when uploaded
         csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
 
@@ -68,8 +77,14 @@ def main():
         csv_content_6, df_6 = save_file_as_csv(uploaded_file_6)
 
         csv_content_7, df_7 = save_file_as_csv(uploaded_file_7)
+
+        csv_content_8, df_8 = save_file_as_csv(uploaded_file_8)
+        csv_content_9, df_9 = save_file_as_csv(uploaded_file_9)
+        csv_content_10, df_10 = save_file_as_csv(uploaded_file_10)
+        csv_content_11, df_11 = save_file_as_csv(uploaded_file_11)
         
-        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6 and csv_content_7:
+        
+        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6 and csv_content_7 and csv_content_8 and csv_content_9 and csv_content_10 and csv_content_11:
             # Button to go to the next screen
             if st.button("Next"):
                 st.session_state.csv_file_2 = csv_content_2
@@ -89,14 +104,26 @@ def main():
 
                 st.session_state.csv_file_7 = csv_content_7
                 st.session_state.df_7 = df_7
+
+                st.session_state.csv_file_8 = csv_content_8
+                st.session_state.df_8 = df_8
+
+                st.session_state.csv_file_9 = csv_content_9
+                st.session_state.df_9 = df_9
+
+                st.session_state.csv_file_10 = csv_content_10
+                st.session_state.df_10 = df_10
+
+                st.session_state.csv_file_11 = csv_content_11
+                st.session_state.df_11 = df_11
                 
                 st.write("Files have been saved and are ready for processing.")
                 
-    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 or uploaded_file_7 is None:
+    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 or uploaded_file_7 or uploaded_file_8 or uploaded_file_9 or uploaded_file_10 or uploaded_file_11 is None:
         st.warning("Please upload ALL files to proceed.")
 
     # Check if data has been stored in session_state from the previous screen
-    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" and "csv_file_7" in st.session_state: 
+    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" and "csv_file_7" and "csv_file_8" and "csv_file_9" and "csv_file_10" and "csv_file_11" in st.session_state: 
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
@@ -108,6 +135,11 @@ def main():
         df_5.to_csv('00 - originalobservedHP.csv',index=False)
         df_6.to_csv('00 - originaldevass.csv',index=False)
         df_7.to_csv('00 - NBME_results.csv',index=False)
+
+        df_8.to_csv('00 - canvasquiz1.csv',index=False)
+        df_9.to_csv('00 - canvasquiz2.csv',index=False)
+        df_10.to_csv('00 - canvasquiz3.csv',index=False)
+        df_11.to_csv('00 - canvasquiz4.csv',index=False)
         
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
@@ -1204,6 +1236,418 @@ def main():
         
         df = pd.read_csv(FILETOMAP)
         df.to_csv('x09 - nbme.csv',index=False)
+
+        import pandas as pd
+        import numpy as np 
+        df = pd.read_csv('00 - canvasquiz1.csv')
+        
+        df.rename(columns={df.columns[2]: "email_2" }, inplace = True)
+        
+        df = df[['email_2',"score"]]
+        
+        df['quiz1'] = round((df['score'].astype(int)/15)*100,1)
+        
+        df=df.groupby('email_2').agg({'quiz1':max})
+        
+        df.to_csv('x10 - canvasquiz1.csv')
+        
+        FILETOMAP = "x10 - canvasquiz1.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email_2'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','quiz1']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        #################################################
+        df = pd.read_csv('00 - canvasquiz1.csv')
+        
+        df = df[['sis_id','submitted']]
+        
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "1x.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'sis_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)     
+        
+        df = df[['record_id','submitted']]
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "x10 - canvasquiz1.csv"
+        RECORDIDMAPPER = '1x.csv'
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['quiz_1_late'] = df[(COLUMN)].map(df1)     
+        
+        df['quiz_1_late'] = df['quiz_1_late'].astype('datetime64[ns]')
+        
+        import pytz
+        
+        df['quiz_1_late'] = pd.to_datetime(df['quiz_1_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        
+        df['quiz_1_late'] = df['quiz_1_late'].dt.strftime('%m-%d-%Y 23:59')
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        
+        df = pd.read_csv('00 - canvasquiz2.csv')
+        df.rename(columns={df.columns[2]: "email_2" }, inplace = True)
+        
+        df = df[['email_2',"score"]]
+        
+        df['quiz2'] = round((df['score'].astype(int)/15)*100,1)
+        
+        df=df.groupby('email_2').agg({'quiz2':max})
+        
+        df.to_csv('x10 - canvasquiz2.csv')
+        
+        FILETOMAP = "x10 - canvasquiz2.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email_2'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','quiz2']]
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        #################################################
+        df = pd.read_csv('00 - canvasquiz2.csv')
+        
+        df = df[['sis_id','submitted']]
+        
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "1x.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'sis_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)     
+        
+        df = df[['record_id','submitted']]
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "x10 - canvasquiz2.csv"
+        RECORDIDMAPPER = '1x.csv'
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['quiz_2_late'] = df[(COLUMN)].map(df1)     
+        
+        df['quiz_2_late'] = df['quiz_2_late'].astype('datetime64[ns]')
+        
+        import pytz
+        
+        df['quiz_2_late'] = pd.to_datetime(df['quiz_2_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        
+        df['quiz_2_late'] = df['quiz_2_late'].dt.strftime('%m-%d-%Y 23:59')
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        
+        df = pd.read_csv('00 - canvasquiz3.csv') ###############
+        df.rename(columns={df.columns[2]: "email_2" }, inplace = True)
+        
+        df = df[['email_2',"score"]]
+        
+        df['quiz3'] = round((df['score'].astype(int)/15)*100,1) ###############
+        
+        df=df.groupby('email_2').agg({'quiz3':max}) ###############
+        
+        df.to_csv('x10 - canvasquiz3.csv') ###############
+        
+        FILETOMAP = "x10 - canvasquiz3.csv" ###############
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email_2'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','quiz3']]         ###############
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        #################################################
+        df = pd.read_csv('00 - canvasquiz3.csv')
+        
+        df = df[['sis_id','submitted']]
+        
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "1x.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'sis_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)     
+        
+        df = df[['record_id','submitted']]
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "x10 - canvasquiz3.csv"
+        RECORDIDMAPPER = '1x.csv'
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['quiz_3_late'] = df[(COLUMN)].map(df1)     
+        
+        df['quiz_3_late'] = df['quiz_3_late'].astype('datetime64[ns]')
+        
+        import pytz
+        
+        df['quiz_3_late'] = pd.to_datetime(df['quiz_3_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        
+        df['quiz_3_late'] = df['quiz_3_late'].dt.strftime('%m-%d-%Y 23:59')
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        
+        df = pd.read_csv('00 - canvasquiz4.csv') ###############
+        df.rename(columns={df.columns[2]: "email_2" }, inplace = True)
+        
+        df = df[['email_2',"score"]]
+        
+        df['quiz4'] = round((df['score'].astype(int)/15)*100,1) ###############
+        
+        df=df.groupby('email_2').agg({'quiz4':max}) ###############
+        
+        df.to_csv('x10 - canvasquiz4.csv') ###############
+        
+        FILETOMAP = "x10 - canvasquiz4.csv" ###############
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'email_2'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        first_column = df.pop('record_id')
+        
+        df.insert(0, 'record_id', first_column)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df=pd.read_csv(FILETOMAP,dtype=str)
+        
+        df.dropna(subset=['record_id'], inplace=True)
+        
+        df.to_csv(FILETOMAP,index=False)
+        
+        df2 = pd.read_csv(FILETOMAP,dtype=str)
+        
+        df3 = df2[['record_id','quiz4']]         ###############
+        
+        df3.to_csv(FILETOMAP,index=False)
+        
+        #################################################
+        df = pd.read_csv('00 - canvasquiz4.csv')
+        
+        df = df[['sis_id','submitted']]
+        
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "1x.csv"
+        RECORDIDMAPPER = 'recordidmapper.csv'
+        COLUMN = 'sis_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[1]:rows[2] for rows in reader} 
+            
+        df['record_id'] = df[(COLUMN)].map(df1)     
+        
+        df = df[['record_id','submitted']]
+        df.to_csv('1x.csv',index=False)
+        
+        FILETOMAP = "x10 - canvasquiz4.csv"
+        RECORDIDMAPPER = '1x.csv'
+        COLUMN = 'record_id'
+        
+        import pandas as pd
+        import numpy as np
+        import csv
+        df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+        
+        mydict = {}
+        with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+        	reader = csv.reader(inp)
+        	df1 = {rows[0]:rows[1] for rows in reader} 
+            
+        df['quiz_4_late'] = df[(COLUMN)].map(df1)     
+        
+        df['quiz_4_late'] = df['quiz_4_late'].astype('datetime64[ns]')
+        
+        import pytz
+        
+        df['quiz_4_late'] = pd.to_datetime(df['quiz_4_late']).dt.tz_localize('UTC').dt.tz_convert('US/Eastern')
+        
+        df['quiz_4_late'] = df['quiz_4_late'].dt.strftime('%m-%d-%Y 23:59')
+        
+        df.to_csv(FILETOMAP,index=False)
+
                 
         ##############################################ENDING##############################################
         import pandas as pd
@@ -1399,6 +1843,129 @@ def main():
         # Step 6: Save the modified dataframe back to the original file
         df_original.to_csv(ORIGINALA, index=False)
 
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz1.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz2.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz3.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
+        
+        import pandas as pd
+        import numpy as np
+        
+        FILETOMAP = "x10 - canvasquiz4.csv"
+        ORIGINALA = "mainfile.csv"
+        
+        # Step 1: Read the mapping file and the original file
+        df_map = pd.read_csv(FILETOMAP)
+        df_original = pd.read_csv(ORIGINALA, dtype=str)
+        
+        # Step 2: Ensure 'record_id' is a string and strip extra spaces
+        df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+        df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+        
+        # Step 3: Get column names to map (excluding 'record_id')
+        col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+        
+        # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+        mapping_dict = {}
+        for _, row in df_map.iterrows():
+            record_id = row['record_id']
+            if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+        
+        # Step 5: Apply the mapping to df_original for each domain column
+        for col in col_names:
+            df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+        
+        # Step 6: Save the modified dataframe back to the original file
+        df_original.to_csv(ORIGINALA, index=False)
         ########################################################################################
         ########################################################################################
 
