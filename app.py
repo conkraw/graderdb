@@ -2003,6 +2003,25 @@ def main():
         # Step 6: Save the modified dataframe back to the original file
         df_original.to_csv(ORIGINALA, index=False)
 
+        import pandas as pd
+        import numpy as np
+        
+        # Read the original file
+        df_original = pd.read_csv(ORIGINALA)
+        
+        # Step 1: Replace NaN with 0
+        df_original = df_original.fillna(0)
+        
+        # Step 2: Convert float columns (i.e., columns with decimal points) to integers
+        # Convert all columns with numeric values to integer, keeping string columns (like 'record_id') intact
+        for col in df_original.columns:
+            # Only convert columns that are not of type 'object' (i.e., string columns)
+            if df_original[col].dtype in ['float64', 'int64']:
+                df_original[col] = df_original[col].apply(lambda x: int(x) if x == int(x) else x)
+        
+        # Save the cleaned dataframe to a CSV
+        df_original.to_csv(ORIGINALA, index=False)
+
         ########################################################################################
         ########################################################################################
 
