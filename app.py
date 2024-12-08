@@ -41,6 +41,12 @@ def save_file_as_csv(uploaded_file):
         return None, None
 
 def main():
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import io
+    import openpyxl 
+    
     st.title("Grader Database Uploader")
 
     uploaded_files = st.file_uploader("Upload Files (CSV or Excel)", type=["csv", "xlsx"], accept_multiple_files=True)
