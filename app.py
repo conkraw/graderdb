@@ -5,13 +5,21 @@ import io
 import openpyxl 
 import re
 # Function to handle file upload and save it as a CSV
-def get_file_value(filename):
-    # Check if the filename matches Canvas Quiz pattern and extract the week
-    match = re.search(r"Canvas Quiz (\d+)", filename)
+def get_canvas_quiz_filename(filename):
+    match = re.search(r"Week (\d+)", filename)  # Search for "Week X"
     if match:
-        quiz_number = match.group(1)
-        return f"Canvas Quiz {quiz_number}"
+        week_number = int(match.group(1))  # Extract the week number (1, 2, 3, ...)
+        # Map the week number to the Canvas Quiz file name
+        if week_number == 1:
+            return "Canvas Quiz 1"
+        elif week_number == 2:
+            return "Canvas Quiz 2"
+        elif week_number == 3:
+            return "Canvas Quiz 3"
+        elif week_number == 4:
+            return "Canvas Quiz 4"
     return None
+
 
 def save_file_as_csv(uploaded_file):
     # Check file extension to determine whether it's a CSV or Excel file
@@ -91,7 +99,7 @@ def main():
                             file_data[category] = df
                             st.write(f"File '{uploaded_file.name}' assigned to category: {category}")
                             break
-                quiz_value = get_file_value(uploaded_file.name)
+                quiz_value = get_canvas_quiz_filename(uploaded_file.name)
                 if quiz_value:
                     file_data[quiz_value] = df
                     st.write(f"File '{uploaded_file.name}' assigned to category: {quiz_value}")
