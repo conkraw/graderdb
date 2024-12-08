@@ -8,7 +8,7 @@ import os
 
 # Function to handle file upload and save it as a CSV
 def get_canvas_quiz_filename(filename):
-    match = re.search(r"Week (\d+)", filename)  # Search for "Week X"
+    match = re.search(r"Week (\d+)\s*-", filename)  # Search for "Week X"
     if match:
         week_number = int(match.group(1))  # Extract the week number (1, 2, 3, ...)
         # Map the week number to the Canvas Quiz file name
