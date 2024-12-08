@@ -128,8 +128,18 @@ def main():
         #df_11.to_csv('00 - canvasquiz4.csv',index=False)
         #df_12.to_csv('00 - ptrackero.csv',index=False)
 
+        df_2 = pd.read_csv('00 - originaloasis.csv')
         df_3 = pd.read_csv('00 - export_results.csv')
-        df_3.to_csv('00 - export_results.csv',index=False)
+        df_4 = pd.read_csv('00 - originalhandoff.csv')
+        df_5 = pd.read_csv('00 - originalobservedHP.csv')
+        df_6 = pd.read_csv('00 - originaldevass.csv')
+        df_7 = pd.read_csv('00 - NBME_results.csv')
+        df_8 = pd.read_csv('00 - canvasquiz1.csv')
+        df_9 = pd.read_csv('00 - canvasquiz2.csv')
+        df_10 = pd.read_csv('00 - canvasquiz3.csv')
+        df_11 = pd.read_csv('00 - canvasquiz4.csv')
+        df_12 = pd.read_csv('00 - ptrackero.csv')
+
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
         observed.to_csv('00 - observed_report.csv',index=False)
