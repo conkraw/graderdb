@@ -2,13 +2,13 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import io
-import openpyxl 
+import openpyxl
 import re
-import os 
+import os
 
-# Function to handle file upload and save it as a CSV
+# Function to handle Canvas Quiz filename extraction based on week number
 def get_canvas_quiz_filename(filename):
-    match = re.search(r"Week (\d+)\s*-", filename)  # Search for "Week X"
+    match = re.search(r"Week (\d+)\s*-", filename)  # Search for "Week X -"
     if match:
         week_number = int(match.group(1))  # Extract the week number (1, 2, 3, ...)
         # Map the week number to the Canvas Quiz file name
@@ -22,22 +22,17 @@ def get_canvas_quiz_filename(filename):
             return "Canvas Quiz 4"
     return None
 
-
+# Function to save uploaded files as CSVs
 def save_file_as_csv(uploaded_file):
-    # Check file extension to determine whether it's a CSV or Excel file
     file_extension = uploaded_file.name.split('.')[-1].lower()
-    
     try:
         if file_extension == "csv":
-            # Read the CSV file directly into a Pandas DataFrame
             df = pd.read_csv(uploaded_file)
         elif file_extension == "xlsx":
-            # Read the Excel file into a Pandas DataFrame
-            df = pd.read_excel(uploaded_file,engine='openpyxl',sheet_name='GradeBook')
+            df = pd.read_excel(uploaded_file, engine='openpyxl', sheet_name='GradeBook')
         else:
             raise ValueError("File must be CSV or Excel format.")
         
-        # Save it as a CSV in memory (this can also be saved to disk if required)
         csv_file = io.StringIO()
         df.to_csv(csv_file, index=False)
         return csv_file.getvalue(), df
@@ -46,19 +41,10 @@ def save_file_as_csv(uploaded_file):
         return None, None
 
 def main():
-    # Title and instructions
-    import streamlit as st
-    import pandas as pd
-    import numpy as np
-    import io
-    import openpyxl 
-    
     st.title("Grader Database Uploader")
 
-    # File uploader for all files (accepting both CSV and XLSX formats)
     uploaded_files = st.file_uploader("Upload Files (CSV or Excel)", type=["csv", "xlsx"], accept_multiple_files=True)
 
-    # Dictionary to hold the DataFrames for different categories
     file_data = {}
 
     # Mapping of categories to desired file names
@@ -76,7 +62,6 @@ def main():
         "Preceptor Tracker": '00 - ptrackero.csv'
     }
 
-    # Column name-value mapping for each file### FINDS THE COLUMN AND LOOKS FOR THE VALUE
     column_value_mapping = {
         "Clinical Assessment Form": {"column": "Evaluation", "value": "*Clinical Assessment of Student"},
         "Clinical Encounter": {"column": "Checklist", "value": "Pediatrics Case Logs"},
@@ -88,40 +73,33 @@ def main():
     }
 
     if uploaded_files:
-        # Process each uploaded file
         for uploaded_file in uploaded_files:
-            # Save and convert each file to CSV and retrieve the DataFrame
             csv_content, df = save_file_as_csv(uploaded_file)
             if csv_content and df is not None:
-                # Check if the file's "Evaluation" column has the expected value
                 for category, mapping in column_value_mapping.items():
                     if mapping["column"] in df.columns:
-                        # Check for the unique value in the specified column
                         if mapping["value"] in df[mapping["column"]].values:
                             file_data[category] = df
                             st.write(f"File '{uploaded_file.name}' assigned to category: {category}")
                             break
-                            
                 quiz_value = get_canvas_quiz_filename(uploaded_file.name)
                 if quiz_value:
                     file_data[quiz_value] = df
                     st.write(f"File '{uploaded_file.name}' assigned to category: {quiz_value}")
                     break
 
-        # After processing, check if all categories have been assigned DataFrames
         if all(value is not None for value in file_data.values()):
-            # Button to go to the next screen after processing files
             if st.button("Next"):
-                # Save each DataFrame with its specific filename
                 for category, df in file_data.items():
-                    if df is not None:  # Ensure the category DataFrame is assigned
+                    if df is not None:
                         file_path = file_name_mapping.get(category, f"{category}.csv")
-                        os.makedirs(os.path.dirname(file_name_mapping.get(category, f"{category}.csv")), exist_ok=True)
+                        # Ensure the directory exists for each file before saving
+                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
                         df.to_csv(file_path, index=False)
-                        st.write(f"File saved as: {filename}")
-            
+                        st.write(f"File saved as: {file_path}")
     else:
         st.warning("Please upload all the required files to proceed.")
+
         
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
