@@ -13,13 +13,13 @@ def get_canvas_quiz_filename(filename):
         week_number = int(match.group(1))  # Extract the week number (1, 2, 3, ...)
         # Map the week number to the Canvas Quiz file name
         if week_number == 1:
-            return "Canvas Quiz 1"
+            return "00 - canvasquiz1.csv"
         elif week_number == 2:
-            return "Canvas Quiz 2"
+            return "00 - canvasquiz2.csv"
         elif week_number == 3:
-            return "Canvas Quiz 3"
+            return "00 - canvasquiz3.csv"
         elif week_number == 4:
-            return "Canvas Quiz 4"
+            return "00 - canvasquiz4.csv"
     return None
 
 # Function to save uploaded files as CSVs
@@ -104,17 +104,22 @@ def main():
         # After processing, check if all required categories are assigned DataFrames
         if all(value is not None for value in file_data.values()):
             if st.button("Next"):
+                # Save files to their respective variables and display the dataframe
                 for category, df in file_data.items():
                     if df is not None:
                         file_path = file_name_mapping.get(category, f"{category}.csv")
-                        # Ensure the directory exists before saving
-                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                        df.to_csv(file_path, index=False)
-                        st.write(f"File saved as: {file_path}")
+                        # Since we don't want to save it to a directory, just provide a download link
+                        st.download_button(
+                            label=f"Download {category} data",
+                            data=df.to_csv(index=False),
+                            file_name=file_path,
+                            mime="text/csv"
+                        )
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
     else:
         st.warning("Please upload all the required files to proceed.")
+        
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
