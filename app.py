@@ -4,6 +4,8 @@ import numpy as np
 import io
 import openpyxl 
 import re
+import os 
+
 # Function to handle file upload and save it as a CSV
 def get_canvas_quiz_filename(filename):
     match = re.search(r"Week (\d+)", filename)  # Search for "Week X"
@@ -113,9 +115,9 @@ def main():
                 # Save each DataFrame with its specific filename
                 for category, df in file_data.items():
                     if df is not None:  # Ensure the category DataFrame is assigned
+                        file_path = file_name_mapping.get(category, f"{category}.csv")
                         os.makedirs(os.path.dirname(file_name_mapping.get(category, f"{category}.csv")), exist_ok=True)
-                        filename = file_name_mapping.get(category, f"{category}.csv")
-                        df.to_csv(filename, index=False)
+                        df.to_csv(file_path, index=False)
                         st.write(f"File saved as: {filename}")
             
     else:
