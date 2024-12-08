@@ -99,6 +99,7 @@ def main():
                             file_data[category] = df
                             st.write(f"File '{uploaded_file.name}' assigned to category: {category}")
                             break
+                            
                 quiz_value = get_canvas_quiz_filename(uploaded_file.name)
                 if quiz_value:
                     file_data[quiz_value] = df
@@ -112,6 +113,7 @@ def main():
                 # Save each DataFrame with its specific filename
                 for category, df in file_data.items():
                     if df is not None:  # Ensure the category DataFrame is assigned
+                        os.makedirs(os.path.dirname(file_name_mapping.get(category, f"{category}.csv")), exist_ok=True)
                         filename = file_name_mapping.get(category, f"{category}.csv")
                         df.to_csv(filename, index=False)
                         st.write(f"File saved as: {filename}")
