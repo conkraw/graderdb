@@ -79,34 +79,42 @@ def main():
     }
 
     if uploaded_files:
+        # Process the uploaded files
         for uploaded_file in uploaded_files:
             csv_content, df = save_file_as_csv(uploaded_file)
             if csv_content and df is not None:
+                # Assign to specific categories based on column value mapping
                 for category, mapping in column_value_mapping.items():
                     if mapping["column"] in df.columns:
                         if mapping["value"] in df[mapping["column"]].values:
                             file_data[category] = df
                             st.write(f"File '{uploaded_file.name}' assigned to category: {category}")
                             break
+
+                # Check if the file corresponds to a Canvas Quiz and extract the correct quiz category
                 quiz_value = get_canvas_quiz_filename(uploaded_file.name)
                 if quiz_value:
-                    file_data[quiz_value] = df
-                    st.write(f"File '{uploaded_file.name}' assigned to category: {quiz_value}")
-                    break
+                    # Ensure that Canvas Quiz 1, 2, 3, or 4 are uniquely handled and not overwritten
+                    if quiz_value not in file_data:
+                        file_data[quiz_value] = df
+                        st.write(f"File '{uploaded_file.name}' assigned to category: {quiz_value}")
+                    else:
+                        st.warning(f"File '{uploaded_file.name}' for {quiz_value} already processed.")
 
+        # After processing, check if all required categories are assigned DataFrames
         if all(value is not None for value in file_data.values()):
             if st.button("Next"):
                 for category, df in file_data.items():
                     if df is not None:
                         file_path = file_name_mapping.get(category, f"{category}.csv")
-                        # Ensure the directory exists for each file before saving
+                        # Ensure the directory exists before saving
                         os.makedirs(os.path.dirname(file_path), exist_ok=True)
                         df.to_csv(file_path, index=False)
                         st.write(f"File saved as: {file_path}")
+        else:
+            st.warning("Some categories are missing. Please ensure all required files are uploaded.")
     else:
         st.warning("Please upload all the required files to proceed.")
-
-        
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
