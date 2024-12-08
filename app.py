@@ -3,8 +3,16 @@ import pandas as pd
 import numpy as np
 import io
 import openpyxl 
-
+import re
 # Function to handle file upload and save it as a CSV
+def get_file_value(filename):
+    # Check if the filename matches Canvas Quiz pattern and extract the week
+    match = re.search(r"Canvas Quiz (\d+)", filename)
+    if match:
+        quiz_number = match.group(1)
+        return f"Canvas Quiz {quiz_number}"
+    return None
+
 def save_file_as_csv(uploaded_file):
     # Check file extension to determine whether it's a CSV or Excel file
     file_extension = uploaded_file.name.split('.')[-1].lower()
@@ -37,118 +45,88 @@ def main():
     
     st.title("Grader Database Uploader")
 
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_2 = st.file_uploader("Upload Clinical Assessment File (CSV or Excel)", type=["csv", "xlsx"])
+    # File uploader for all files (accepting both CSV and XLSX formats)
+    uploaded_files = st.file_uploader("Upload Files (CSV or Excel)", type=["csv", "xlsx"], accept_multiple_files=True)
 
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_3 = st.file_uploader("Upload Clinical Encounters File (CSV or Excel)", type=["csv", "xlsx"])
+    # Dictionary to hold the DataFrames for different categories
+    file_data = {}
 
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_4 = st.file_uploader("Observed Handoff(CSV or Excel)", type=["csv", "xlsx"])
+    # Mapping of categories to desired file names
+    file_name_mapping = {
+        "Clinical Assessment Form": '00 - originaloasis.csv',
+        "Clinical Encounter": '00 - export_results.csv',
+        "Observed Handoff": '00 - originalhandoff.csv',
+        "Observed HP": '00 - originalobservedHP.csv',
+        "Developmental Assessment": '00 - originaldevass.csv',
+        "NBME Exam": '00 - NBME_results.csv',
+        "Canvas Quiz 1": '00 - canvasquiz1.csv',
+        "Canvas Quiz 2": '00 - canvasquiz2.csv',
+        "Canvas Quiz 3": '00 - canvasquiz3.csv',
+        "Canvas Quiz 4": '00 - canvasquiz4.csv',
+        "Preceptor Tracker": '00 - ptrackero.csv'
+    }
 
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_5 = st.file_uploader("Observed HP(CSV or Excel)", type=["csv", "xlsx"])
+    # Column name-value mapping for each file### FINDS THE COLUMN AND LOOKS FOR THE VALUE
+    column_value_mapping = {
+        "Clinical Assessment Form": {"column": "Evaluation", "value": "*Clinical Assessment of Student"},
+        "Clinical Encounter": {"column": "Checklist", "value": "Pediatrics Case Logs"},
+        "Observed Handoff": {"column": "Evaluation", "value": "*PEDS Handoff"},
+        "Observed HP": {"column": "Evaluation", "value": "*PEDS History Taking & Physical Exam"},
+        "Developmental Assessment": {"column": "SOCIAL/EMOTIONAL MILESTONES (choice=Calms down when spoken to or picked up)", "value": "Unchecked"},
+        "NBME Exam": {"column": "Student Level", "value": "MS 3"},
+        "Preceptor Tracker": {"column": "Manual Evaluations", "value": "Mid-Cycle Feedback"}
+    }
 
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_6 = st.file_uploader("Developmental Assessments Labels", type=["csv", "xlsx"])
+    if uploaded_files:
+        # Process each uploaded file
+        for uploaded_file in uploaded_files:
+            # Save and convert each file to CSV and retrieve the DataFrame
+            csv_content, df = save_file_as_csv(uploaded_file)
+            if csv_content and df is not None:
+                # Check if the file's "Evaluation" column has the expected value
+                for category, mapping in column_value_mapping.items():
+                    if mapping["column"] in df.columns:
+                        # Check for the unique value in the specified column
+                        if mapping["value"] in df[mapping["column"]].values:
+                            file_data[category] = df
+                            st.write(f"File '{uploaded_file.name}' assigned to category: {category}")
+                            break
+                quiz_value = get_file_value(uploaded_file.name)
+                if quiz_value:
+                    file_data[quiz_value] = df
+                    st.write(f"File '{uploaded_file.name}' assigned to category: {quiz_value}")
+                    break
 
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_7 = st.file_uploader("NBME Exam", type=["csv", "xlsx"])
-
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_8 = st.file_uploader("Canvas Quiz 1", type=["csv", "xlsx"])
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_9 = st.file_uploader("Canvas Quiz 2", type=["csv", "xlsx"])
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_10 = st.file_uploader("Canvas Quiz 3", type=["csv", "xlsx"])
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_11 = st.file_uploader("Canvas Quiz 4", type=["csv", "xlsx"])
-
-    # File uploader for the first file (accepting both CSV and XLSX formats)
-    uploaded_file_12 = st.file_uploader("Preceptor Tracker", type=["csv", "xlsx"])
-    
-    if uploaded_file_2 and uploaded_file_3 and uploaded_file_4 and uploaded_file_5 and uploaded_file_6 and uploaded_file_7 and uploaded_file_8 and uploaded_file_9 and uploaded_file_10 and uploaded_file_11 and uploaded_file_12 is not None:
-        # Save and convert the first file to CSV when uploaded
-        csv_content_2, df_2 = save_file_as_csv(uploaded_file_2)
-
-        csv_content_3, df_3 = save_file_as_csv(uploaded_file_3)
-        
-        csv_content_4, df_4 = save_file_as_csv(uploaded_file_4)
-        
-        csv_content_5, df_5 = save_file_as_csv(uploaded_file_5)
-
-        csv_content_6, df_6 = save_file_as_csv(uploaded_file_6)
-
-        csv_content_7, df_7 = save_file_as_csv(uploaded_file_7)
-
-        csv_content_8, df_8 = save_file_as_csv(uploaded_file_8)
-        csv_content_9, df_9 = save_file_as_csv(uploaded_file_9)
-        csv_content_10, df_10 = save_file_as_csv(uploaded_file_10)
-        csv_content_11, df_11 = save_file_as_csv(uploaded_file_11)
-        
-        csv_content_12, df_12 = save_file_as_csv(uploaded_file_12)
-        
-        if csv_content_2 and csv_content_3 and csv_content_4 and csv_content_5 and csv_content_6 and csv_content_7 and csv_content_8 and csv_content_9 and csv_content_10 and csv_content_11 and csv_content_12:
-            # Button to go to the next screen
+        # After processing, check if all categories have been assigned DataFrames
+        if all(value is not None for value in file_data.values()):
+            # Button to go to the next screen after processing files
             if st.button("Next"):
-                st.session_state.csv_file_2 = csv_content_2
-                st.session_state.df_2 = df_2
-
-                st.session_state.csv_file_3 = csv_content_3
-                st.session_state.df_3 = df_3
-
-                st.session_state.csv_file_4 = csv_content_4
-                st.session_state.df_4 = df_4
-
-                st.session_state.csv_file_5 = csv_content_5
-                st.session_state.df_5 = df_5
-
-                st.session_state.csv_file_6 = csv_content_6
-                st.session_state.df_6 = df_6
-
-                st.session_state.csv_file_7 = csv_content_7
-                st.session_state.df_7 = df_7
-
-                st.session_state.csv_file_8 = csv_content_8
-                st.session_state.df_8 = df_8
-
-                st.session_state.csv_file_9 = csv_content_9
-                st.session_state.df_9 = df_9
-
-                st.session_state.csv_file_10 = csv_content_10
-                st.session_state.df_10 = df_10
-
-                st.session_state.csv_file_11 = csv_content_11
-                st.session_state.df_11 = df_11
-
-                st.session_state.csv_file_12 = csv_content_12
-                st.session_state.df_12 = df_12
-                
-                st.write("Files have been saved and are ready for processing.")
-                
-    elif uploaded_file_2 or uploaded_file_3 or uploaded_file_4 or uploaded_file_5 or uploaded_file_6 or uploaded_file_7 or uploaded_file_8 or uploaded_file_9 or uploaded_file_10 or uploaded_file_11 or uploaded_file_12 is None:
-        st.warning("Please upload ALL files to proceed.")
-
-    # Check if data has been stored in session_state from the previous screen
-    if "csv_file_2" and "csv_file_3" and "csv_file_4" and "csv_file_5" and "csv_file_6" and "csv_file_7" and "csv_file_8" and "csv_file_9" and "csv_file_10" and "csv_file_11" and "csv_file_12" in st.session_state: 
+                # Save each DataFrame with its specific filename
+                for category, df in file_data.items():
+                    if df is not None:  # Ensure the category DataFrame is assigned
+                        filename = file_name_mapping.get(category, f"{category}.csv")
+                        df.to_csv(filename, index=False)
+                        st.write(f"File saved as: {filename}")
+            
+    else:
+        st.warning("Please upload all the required files to proceed.")
+        
         data = st.secrets["dataset"]["data"]
         dfx = pd.DataFrame(data)
         dfx.to_csv('recordidmapper.csv', index=False)
 
         #df_1.to_csv('recordidmapper.csv',index=False)
-        df_2.to_csv('00 - originaloasis.csv',index=False)
-        df_3.to_csv('00 - export_results.csv',index=False)
-        df_4.to_csv('00 - originalhandoff.csv',index=False)
-        df_5.to_csv('00 - originalobservedHP.csv',index=False)
-        df_6.to_csv('00 - originaldevass.csv',index=False)
-        df_7.to_csv('00 - NBME_results.csv',index=False)
-
-        df_8.to_csv('00 - canvasquiz1.csv',index=False)
-        df_9.to_csv('00 - canvasquiz2.csv',index=False)
-        df_10.to_csv('00 - canvasquiz3.csv',index=False)
-        df_11.to_csv('00 - canvasquiz4.csv',index=False)
-
-        df_12.to_csv('00 - ptrackero.csv',index=False)
+        #df_2.to_csv('00 - originaloasis.csv',index=False)
+        #df_3.to_csv('00 - export_results.csv',index=False)
+        #df_4.to_csv('00 - originalhandoff.csv',index=False)
+        #df_5.to_csv('00 - originalobservedHP.csv',index=False)
+        #df_6.to_csv('00 - originaldevass.csv',index=False)
+        #df_7.to_csv('00 - NBME_results.csv',index=False)
+        #df_8.to_csv('00 - canvasquiz1.csv',index=False)
+        #df_9.to_csv('00 - canvasquiz2.csv',index=False)
+        #df_10.to_csv('00 - canvasquiz3.csv',index=False)
+        #df_11.to_csv('00 - canvasquiz4.csv',index=False)
+        #df_12.to_csv('00 - ptrackero.csv',index=False)
         
         observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
         observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
