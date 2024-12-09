@@ -2748,7 +2748,8 @@ def main():
         
                 import pandas as pd
                 import numpy as np
-                
+                from datetime import datetime
+
                 # Read the original file
                 df_original = pd.read_csv(ORIGINALA)
                 
@@ -2768,7 +2769,10 @@ def main():
                 for col in df_original.columns:
                     if df_original[col].dtype in ['float64', 'int64'] and col not in no_fill_columns:
                         df_original[col] = df_original[col].apply(lambda x: int(x) if x == int(x) else x)
-                
+
+                today_date = datetime.now().strftime('%m/%d/%Y')
+                df_original['datez'] = today_date
+
                 # Save the cleaned dataframe to a CSV
                 df_original.to_csv(ORIGINALA, index=False)
         
