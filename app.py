@@ -2752,19 +2752,25 @@ def main():
                 # Read the original file
                 df_original = pd.read_csv(ORIGINALA)
                 
-                # Step 1: Replace NaN with 0
-                df_original = df_original.fillna(0)
+                # List of columns to leave blank
+                no_fill_columns = [
+                    'quiz_1_late', 'quiz_2_late', 'quiz_3_late', 'quiz_4_late', 
+                    'submitted_dev', 'submitted_ce', 'cas_submit_min'
+                ]
+                
+                # Step 1: Replace NaN with 0 in all columns except those listed in no_fill_columns
+                df_original = df_original.apply(
+                    lambda col: col.fillna(0) if col.name not in no_fill_columns else col
+                )
                 
                 # Step 2: Convert float columns (i.e., columns with decimal points) to integers
                 # Convert all columns with numeric values to integer, keeping string columns (like 'record_id') intact
                 for col in df_original.columns:
-                    # Only convert columns that are not of type 'object' (i.e., string columns)
-                    if df_original[col].dtype in ['float64', 'int64']:
+                    if df_original[col].dtype in ['float64', 'int64'] and col not in no_fill_columns:
                         df_original[col] = df_original[col].apply(lambda x: int(x) if x == int(x) else x)
                 
                 # Save the cleaned dataframe to a CSV
                 df_original.to_csv(ORIGINALA, index=False)
-                
         
                 ########################################################################################
                 ########################################################################################
