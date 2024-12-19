@@ -735,7 +735,13 @@ def main():
                 # Convert 'Time entered' to datetime format
                 #df['Time entered'] = pd.to_datetime(df['Time entered'], format='%m/%d/%Y %I:%M:%S %p')
                 
-                df['Time entered'] = pd.to_datetime(df['Time entered'], format="%m/%d/%Y %H:%M")
+                #df['Time entered'] = pd.to_datetime(df['Time entered'], format="%m/%d/%Y %H:%M")
+                try:
+                    df['Time entered'] = pd.to_datetime(df['Time entered'], format='%m/%d/%Y %I:%M:%S %p')
+                except Exception as e:
+                    print(f"Error with format '%m/%d/%Y %I:%M:%S %p': {e}")
+                    # If the first conversion fails, fall back to the 24-hour format without seconds
+                    df['Time entered'] = pd.to_datetime(df['Time entered'], format="%m/%d/%Y %H:%M")
                 
                 # Find the maximum 'Time entered' for each email
                 max_time = df.groupby('Email')['Time entered'].max().reset_index()
