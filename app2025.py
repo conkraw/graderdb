@@ -990,26 +990,6 @@ def main():
                 
                 # Save the grouped dataset
                 grouped_df.to_csv('hx_pe_comments.csv', index=False)
-
-                FILETOMAP = "observedhp.csv"
-                RECORDIDMAPPER = 'hx_pe_comments.csv'
-                COLUMN = "Student Email"
-
-                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
-                
-                mydict = {}
-                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
-                	reader = csv.reader(inp)
-                	df1 = {rows[0]:rows[1] for rows in reader} 
-                df['hx_comments'] = df[(COLUMN)].map(df1)
-
-                mydict = {}
-                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
-                	reader = csv.reader(inp)
-                	df1 = {rows[0]:rows[2] for rows in reader} 
-                df['pe_comments'] = df[(COLUMN)].map(df1)
-
-                df.to_csv('observedhp.csv',index=False); st.dataframe(df)
                 
                 FILETOMAP = "observedhp.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
@@ -1051,8 +1031,56 @@ def main():
                 df = pd.read_csv('observedhpcount.csv')
                 df.rename(columns={df.columns[1]: "obhp_submissions" }, inplace = True)
                 
-                df.to_csv('x07 - observedhp.csv',index=False); st.dataframe(df)
+                df.to_csv('x07 - observedhp.csv',index=False)
 
+                FILETOMAP = "hx_pe_comments.csv"
+                RECORDIDMAPPER = 'recordidmapper.csv'
+                COLUMN = "Student Email"
+
+                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+                
+                mydict = {}
+                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[2] for rows in reader} 
+                    
+                df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                first_column = df.pop('record_id')
+                
+                df.insert(0, 'record_id', first_column)
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                df=pd.read_csv(FILETOMAP,dtype=str)
+                
+                df.dropna(subset=['record_id'], inplace=True)
+                
+                df.to_csv(FILETOMAP,index=False)
+
+                FILETOMAP = "x07 - observedhp.csv"
+                RECORDIDMAPPER = 'hx_pe_comments.csv'
+                COLUMN = 'record_id'
+                
+                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+                
+                mydict = {}
+                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[2] for rows in reader} 
+                    
+                df['hx_comments'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+
+                                mydict = {}
+                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[3] for rows in reader} 
+                    
+                df['pe_comments'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+
+                df.to_csv(FILETOMAP,index=False); st.dataframe(df)
                 #######################################################################################################################
                 
                 df = pd.read_csv('hx_lor.csv')
