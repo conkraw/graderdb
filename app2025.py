@@ -1058,7 +1058,7 @@ def main():
                 
                 df.dropna(subset=['record_id'], inplace=True)
                 
-                df.to_csv(FILETOMAP,index=False); st.dataframe(df)
+                df.to_csv(FILETOMAP,index=False)
 
                 FILETOMAP = "x07 - observedhp.csv"
                 RECORDIDMAPPER = 'hx_pe_comments.csv'
@@ -1080,7 +1080,7 @@ def main():
                     
                 df['pe_comments'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
 
-                df.to_csv(FILETOMAP,index=False); st.dataframe(df)
+                df.to_csv(FILETOMAP,index=False)
                 #######################################################################################################################
                 
                 df = pd.read_csv('hx_lor.csv')
@@ -1207,7 +1207,7 @@ def main():
                     
                 df['pe_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
                 
-                df.to_csv(FILETOMAP,index=False)
+                df.to_csv(FILETOMAP,index=False); st.dataframe(df)
                 ###################################################DEVELOPMENTAL ASSESSMENTS#########################################################
                 df = pd.read_csv('00 - originaldevass.csv')
         
