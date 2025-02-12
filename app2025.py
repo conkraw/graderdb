@@ -1036,7 +1036,7 @@ def main():
                 observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str); st.dataframe(observed_hp_df)
                 
                 # Load the comments dataset
-                hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str)
+                hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str); st.dataframe(hx_pe_df)
                 
                 # Convert comments dataset to a dictionary for mapping
                 comments_dict = hx_pe_df.set_index("Student Email")[["hx_comments", "pe_comments"]].to_dict(orient="index")
