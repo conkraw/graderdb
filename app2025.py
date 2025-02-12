@@ -1051,12 +1051,7 @@ def main():
                 df = pd.read_csv('observedhpcount.csv')
                 df.rename(columns={df.columns[1]: "obhp_submissions" }, inplace = True)
                 
-                df.to_csv('x07 - observedhp.csv',index=False)
-
-                observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str)
-                
-                # Load the comments dataset
-                hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str)
+                df.to_csv('x07 - observedhp.csv',index=False); st.dataframe(df)
 
                 #######################################################################################################################
                 
