@@ -969,7 +969,7 @@ def main():
                 
                 df['email'] = df['Student Email'].astype(str)
                 
-                df.to_csv('observedhp.csv',index=False); st.dataframe(df)
+                df.to_csv('observedhp.csv',index=False
 
                 # Select relevant columns and rename them while merging
                 hx_c = df[['Student Email', '4 Multiple Choice Label', '5 Answer text']].copy()
@@ -991,28 +991,37 @@ def main():
                 # Save the grouped dataset
                 grouped_df.to_csv('hx_pe_comments.csv', index=False)
 
-                # Define file paths
                 FILETOMAP = "observedhp.csv"
-                RECORDIDMAPPER = "recordidmapper.csv"
-                COLUMN = "email"
+                RECORDIDMAPPER = 'recordidmapper.csv'
+                COLUMN = 'email'
                 
-                # Load the dataset to be mapped
-                df = pd.read_csv(FILETOMAP, dtype=str)
+                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
                 
-                # Load the mapping file and create a dictionary
-                df1 = pd.read_csv(RECORDIDMAPPER, dtype=str).set_index(0)[2].to_dict()
+                mydict = {}
+                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[2] for rows in reader} 
+                    
+                df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
                 
-                # Map values and reorder columns
-                df["record_id"] = df[COLUMN].map(df1)
-                df.dropna(subset=["record_id"], inplace=True)  # Remove rows where record_id is NaN
-                df = df[["record_id"] + [col for col in df.columns if col != "record_id"]]  # Move record_id to first column
+                df.to_csv(FILETOMAP,index=False)
                 
-                # Save the cleaned dataset
-                df.to_csv(FILETOMAP, index=False)
+                first_column = df.pop('record_id')
                 
-                # Extract required columns
-                df3 = df[["record_id", "obhp_submissions"]]
-
+                df.insert(0, 'record_id', first_column)
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                df=pd.read_csv(FILETOMAP,dtype=str)
+                
+                df.dropna(subset=['record_id'], inplace=True)
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                df2 = pd.read_csv(FILETOMAP,dtype=str)
+                
+                df3 = df2[['record_id','obhp_submissions']]
+                
                 df3.to_csv(FILETOMAP,index=False)
                 
                 df = pd.read_csv('observedhp.csv')
