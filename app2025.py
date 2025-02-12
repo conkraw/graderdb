@@ -989,7 +989,7 @@ def main():
                 grouped_df = merged_df.groupby("Student Email").agg({"hx_comments": lambda x: "; ".join(x.dropna().unique()),"pe_comments": lambda x: "; ".join(x.dropna().unique())}).reset_index()
                 
                 # Save the grouped dataset
-                grouped_df.to_csv('hx_pe_comments.csv', index=False); st.dataframe(grouped_df)
+                grouped_df.to_csv('hx_pe_comments.csv', index=False)
                 
                 FILETOMAP = "observedhp.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
@@ -1058,7 +1058,7 @@ def main():
                 
                 df.dropna(subset=['record_id'], inplace=True)
                 
-                df.to_csv(FILETOMAP,index=False)
+                df.to_csv(FILETOMAP,index=False); st.dataframe(df)
 
                 FILETOMAP = "x07 - observedhp.csv"
                 RECORDIDMAPPER = 'hx_pe_comments.csv'
