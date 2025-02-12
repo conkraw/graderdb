@@ -831,6 +831,10 @@ def main():
 
                 df_comments = df[['Student Email','4 Multiple Choice Label', '5 Answer text']]
 
+                df_comments["ho_comments"] = df_comments["4 Multiple Choice Label"] + ": " + df_comments["5 Answer text"]
+                
+                df_comments = df_comments[['Student Email', 'ho_comments']]
+
                 df_comments.to_csv('ho_comments.csv',index=False)
                 
                 df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value']]
@@ -955,7 +959,7 @@ def main():
                 mydict = {}
                 with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
                 	reader = csv.reader(inp)
-                	df1 = {rows[0]:rows[1] for rows in reader} 
+                	df1 = {rows[0]:rows[2] for rows in reader} 
                     
                 df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
                 
