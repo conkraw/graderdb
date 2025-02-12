@@ -1067,14 +1067,14 @@ def main():
                 df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
                 
                 mydict = {}
-                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
                 	reader = csv.reader(inp)
                 	df1 = {rows[0]:rows[2] for rows in reader} 
                     
                 df['hx_comments'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
 
                 mydict = {}
-                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
                 	reader = csv.reader(inp)
                 	df1 = {rows[0]:rows[3] for rows in reader} 
                     
