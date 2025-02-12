@@ -1033,7 +1033,7 @@ def main():
                 
                 df.to_csv('x07 - observedhp.csv',index=False)
 
-                observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str)
+                observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str); st.dataframe(observed_hp_df)
                 
                 # Load the comments dataset
                 hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str)
@@ -1042,11 +1042,11 @@ def main():
                 comments_dict = hx_pe_df.set_index("Student Email")[["hx_comments", "pe_comments"]].to_dict(orient="index")
                 
                 # Map hx_comments and pe_comments based on "Student Email"
-                observed_hp_df["hx_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("hx_comments", ""))
-                observed_hp_df["pe_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("pe_comments", ""))
+                #observed_hp_df["hx_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("hx_comments", ""))
+                #observed_hp_df["pe_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("pe_comments", ""))
                 
                 # Save the final mapped dataset
-                observed_hp_df.to_csv("x07 - observedhp.csv", index=False)
+                #observed_hp_df.to_csv("x07 - observedhp.csv", index=False)
                 #######################################################################################################################
                 
                 df = pd.read_csv('hx_lor.csv')
