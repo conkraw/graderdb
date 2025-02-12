@@ -954,10 +954,13 @@ def main():
                 
                 #df = df.loc[df['Course'] == "Testing for Peds QR Eval"]
                 
-                df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value', '6 Multiple Choice Value']]
+                df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value', '6 Multiple Choice Value','4 Multiple Choice Label','5 Answer text','8 Multiple Choice Label','9 Answer text']]
                 
                 hx = df[['Student Email','2 Multiple Choice Value']]
                 pe = df[['Student Email','6 Multiple Choice Value']]
+
+                hx_c = df[['Student Email','4 Multiple Choice Label','5 Answer text']]
+                pe_c = df[['Student Email','8 Multiple Choice Label','9 Answer text']]
                 
                 hx.to_csv('hx_lor.csv')
                 pe.to_csv('pe_lor.csv')
@@ -967,38 +970,49 @@ def main():
                 df['email'] = df['Student Email'].astype(str)
                 
                 df.to_csv('observedhp.csv',index=False)
+
+                # Select relevant columns and rename them while merging
+                hx_c = df[['Student Email', '4 Multiple Choice Label', '5 Answer text']].copy()
+                hx_c["hx_comments"] = hx_c["4 Multiple Choice Label"] + "; " + hx_c["5 Answer text"]
+                hx_c = hx_c[['Student Email', 'hx_comments']]  # Keep only relevant columns
                 
+                pe_c = df[['Student Email', '8 Multiple Choice Label', '9 Answer text']].copy()
+                pe_c["pe_comments"] = pe_c["8 Multiple Choice Label"] + "; " + pe_c["9 Answer text"]
+                pe_c = pe_c[['Student Email', 'pe_comments']]  # Keep only relevant columns
+                
+                # Merge both dataframes on "Student Email"
+                merged_df = pd.merge(hx_c, pe_c, on="Student Email", how="outer")
+                
+                merged_df = merged_df.drop_duplicates()
+                
+                # Group by "Student Email" and combine hx_comments and pe_comments into lists
+                grouped_df = merged_df.groupby("Student Email").agg({"hx_comments": lambda x: "; ".join(x.dropna().unique()),"pe_comments": lambda x: "; ".join(x.dropna().unique())}).reset_index()
+                
+                # Save the grouped dataset
+                grouped_df.to_csv('hx_pe_comments.csv', index=False)
+
+                # Define file paths
                 FILETOMAP = "observedhp.csv"
-                RECORDIDMAPPER = 'recordidmapper.csv'
-                COLUMN = 'email'
+                RECORDIDMAPPER = "recordidmapper.csv"
+                COLUMN = "email"
                 
-                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+                # Load the dataset to be mapped
+                df = pd.read_csv(FILETOMAP, dtype=str)
                 
-                mydict = {}
-                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
-                	reader = csv.reader(inp)
-                	df1 = {rows[0]:rows[2] for rows in reader} 
-                    
-                df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+                # Load the mapping file and create a dictionary
+                df1 = pd.read_csv(RECORDIDMAPPER, dtype=str).set_index(0)[2].to_dict()
                 
-                df.to_csv(FILETOMAP,index=False)
+                # Map values and reorder columns
+                df["record_id"] = df[COLUMN].map(df1)
+                df.dropna(subset=["record_id"], inplace=True)  # Remove rows where record_id is NaN
+                df = df[["record_id"] + [col for col in df.columns if col != "record_id"]]  # Move record_id to first column
                 
-                first_column = df.pop('record_id')
+                # Save the cleaned dataset
+                df.to_csv(FILETOMAP, index=False)
                 
-                df.insert(0, 'record_id', first_column)
-                
-                df.to_csv(FILETOMAP,index=False)
-                
-                df=pd.read_csv(FILETOMAP,dtype=str)
-                
-                df.dropna(subset=['record_id'], inplace=True)
-                
-                df.to_csv(FILETOMAP,index=False)
-                
-                df2 = pd.read_csv(FILETOMAP,dtype=str)
-                
-                df3 = df2[['record_id','obhp_submissions']]
-                
+                # Extract required columns
+                df3 = df[["record_id", "obhp_submissions"]]
+
                 df3.to_csv(FILETOMAP,index=False)
                 
                 df = pd.read_csv('observedhp.csv')
@@ -1009,8 +1023,21 @@ def main():
                 df.rename(columns={df.columns[1]: "obhp_submissions" }, inplace = True)
                 
                 df.to_csv('x07 - observedhp.csv',index=False)
+
+                observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str)
                 
+                # Load the comments dataset
+                hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str)
                 
+                # Convert comments dataset to a dictionary for mapping
+                comments_dict = hx_pe_df.set_index("Student Email")[["hx_comments", "pe_comments"]].to_dict(orient="index")
+                
+                # Map hx_comments and pe_comments based on "Student Email"
+                observed_hp_df["hx_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("hx_comments", ""))
+                observed_hp_df["pe_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("pe_comments", ""))
+                
+                # Save the final mapped dataset
+                observed_hp_df.to_csv("x07 - observedhp.csv", index=False)
                 #######################################################################################################################
                 
                 df = pd.read_csv('hx_lor.csv')
