@@ -1009,7 +1009,7 @@ def main():
                 	df1 = {rows[0]:rows[2] for rows in reader} 
                 df['pe_comments'] = df[(COLUMN)].map(df1)
 
-                df.to_csv('observedhp.csv',index=False); st.dataframe(st)
+                df.to_csv('observedhp.csv',index=False); st.dataframe(df)
                 
                 FILETOMAP = "observedhp.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
