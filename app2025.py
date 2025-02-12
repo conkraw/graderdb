@@ -969,7 +969,7 @@ def main():
                 
                 df['email'] = df['Student Email'].astype(str)
                 
-                df.to_csv('observedhp.csv',index=False
+                df.to_csv('observedhp.csv'),index=False
 
                 # Select relevant columns and rename them while merging
                 hx_c = df[['Student Email', '4 Multiple Choice Label', '5 Answer text']].copy()
