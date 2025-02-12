@@ -1073,7 +1073,7 @@ def main():
                     
                 df['hx_comments'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
 
-                                mydict = {}
+                mydict = {}
                 with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
                 	reader = csv.reader(inp)
                 	df1 = {rows[0]:rows[3] for rows in reader} 
