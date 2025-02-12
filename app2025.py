@@ -983,7 +983,7 @@ def main():
                 	reader = csv.reader(inp)
                 	df1 = {rows[0]:rows[1] for rows in reader} 
                     
-                df['ho_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+                df['ho_comments'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
                 
                 df.to_csv(FILETOMAP,index=False)
                 ##############################################OBSERVED HP##############################################
