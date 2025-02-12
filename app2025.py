@@ -997,10 +997,10 @@ def main():
                 COLUMN = "email"
                 
                 # Load the dataset to be mapped
-                df = pd.read_csv(FILETOMAP, dtype=str)
+                df = pd.read_csv(FILETOMAP, dtype=str); st.dataframe(df1)
                 
                 # Load the mapping file and create a dictionary
-                df1 = pd.read_csv(RECORDIDMAPPER, dtype=str).set_index(0)[2].to_dict(); st.dataframe(df1)
+                df1 = pd.read_csv(RECORDIDMAPPER, dtype=str).set_index(0)[2].to_dict()
                 
                 # Map values and reorder columns
                 df["record_id"] = df[COLUMN].map(df1)
