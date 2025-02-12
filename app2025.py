@@ -963,9 +963,29 @@ def main():
                     
                 df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
                 
-                df.to_csv(FILETOMAP,index=False); st.dataframe(df)
+                # Drop "Student Email" column after mapping
+                df = df.drop(columns=[COLUMN])
+                
+                # Keep only "record_id" and "ho_comments"
+                df = df[["record_id", "ho_comments"]]
+                
+                # Save the updated dataset
+                df.to_csv(FILETOMAP, index=False)
         
-        
+                FILETOMAP = 'x07 - observedho.csv'
+                RECORDIDMAPPER = 'ho_comments.csv'
+                COLUMN = 'record_id'
+                
+                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+                
+                mydict = {}
+                with open('ho_lor.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[1] for rows in reader} 
+                    
+                df['ho_lor'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+                
+                df.to_csv(FILETOMAP,index=False)
                 ##############################################OBSERVED HP##############################################
                 import pandas as pd
                 import numpy as np
