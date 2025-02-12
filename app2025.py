@@ -828,13 +828,13 @@ def main():
                 df = df.loc[df['Course'] == "Pediatric Clerkship"]
                 
                 #df = df.loc[df['Course'] == "Testing for Peds QR Eval"]
-                
-                df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value']]
 
                 df_comments = df[['Student Email','4 Multiple Choice Label', '5 Answer text']]
 
                 df_comments.to_csv('ho_comments.csv',index=False)
                 
+                df = df[['Student Email','1 Multiple Choice Value','2 Multiple Choice Value']]
+
                 df.to_csv('ho_lor.csv',index=False)
                 
                 df['obho_submissions'] = 1
