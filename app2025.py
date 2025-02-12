@@ -969,7 +969,7 @@ def main():
                 
                 df['email'] = df['Student Email'].astype(str)
                 
-                df.to_csv('observedhp.csv',index=False)
+                df.to_csv('observedhp.csv',index=False); st.dataframe(df)
 
                 # Select relevant columns and rename them while merging
                 hx_c = df[['Student Email', '4 Multiple Choice Label', '5 Answer text']].copy()
@@ -997,7 +997,7 @@ def main():
                 COLUMN = "email"
                 
                 # Load the dataset to be mapped
-                df = pd.read_csv(FILETOMAP, dtype=str); st.dataframe(df1)
+                df = pd.read_csv(FILETOMAP, dtype=str)
                 
                 # Load the mapping file and create a dictionary
                 df1 = pd.read_csv(RECORDIDMAPPER, dtype=str).set_index(0)[2].to_dict()
