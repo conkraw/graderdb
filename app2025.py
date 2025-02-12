@@ -992,6 +992,26 @@ def main():
                 grouped_df.to_csv('hx_pe_comments.csv', index=False)
 
                 FILETOMAP = "observedhp.csv"
+                RECORDIDMAPPER = 'hx_pe_comments.csv'
+                COLUMN = "Student Email"
+
+                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+                
+                mydict = {}
+                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[1] for rows in reader} 
+                df['hx_comments'] = df[(COLUMN)].map(df1)
+
+                mydict = {}
+                with open(RECORDIDMAPPER, mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[2] for rows in reader} 
+                df['pe_comments'] = df[(COLUMN)].map(df1)
+
+                df.to_csv('observedhp.csv',index=False); st.dataframe(st)
+                
+                FILETOMAP = "observedhp.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
                 COLUMN = 'email'
                 
@@ -1033,20 +1053,11 @@ def main():
                 
                 df.to_csv('x07 - observedhp.csv',index=False)
 
-                observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str); st.dataframe(observed_hp_df)
+                observed_hp_df = pd.read_csv("x07 - observedhp.csv", dtype=str)
                 
                 # Load the comments dataset
-                hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str); st.dataframe(hx_pe_df)
-                
-                # Convert comments dataset to a dictionary for mapping
-                comments_dict = hx_pe_df.set_index("Student Email")[["hx_comments", "pe_comments"]].to_dict(orient="index")
-                
-                # Map hx_comments and pe_comments based on "Student Email"
-                #observed_hp_df["hx_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("hx_comments", ""))
-                #observed_hp_df["pe_comments"] = observed_hp_df["Student Email"].map(lambda x: comments_dict.get(x, {}).get("pe_comments", ""))
-                
-                # Save the final mapped dataset
-                #observed_hp_df.to_csv("x07 - observedhp.csv", index=False)
+                hx_pe_df = pd.read_csv("hx_pe_comments.csv", dtype=str)
+
                 #######################################################################################################################
                 
                 df = pd.read_csv('hx_lor.csv')
