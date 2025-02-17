@@ -76,7 +76,7 @@ def main():
         "Observed HP": {"column": "Evaluation", "value": "*PEDS History Taking & Physical Exam"},
         "Developmental Assessment": {"column": "SOCIAL/EMOTIONAL MILESTONES (choice=Calms down when spoken to or picked up)", "value": "Unchecked"},
         "NBME Exam": {"column": "Student Level", "value": "MS 3"},
-        "Preceptor Tracker": {"column": "Manual Evaluations", "value": "Mid-Cycle Feedback"}
+        "Preceptor Tracker": {"column": "Manual Evaluations", "value": "Mid-Cycle Feedback"},
         "Social Drivers of Health": {"column": "Domain (choice=Housing instability (e.g. homelessness, unsafe living conditions))", "value": "Unchecked"}
     }
 
