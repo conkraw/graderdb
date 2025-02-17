@@ -65,7 +65,8 @@ def main():
         "Canvas Quiz 2": '00 - canvasquiz2.csv',
         "Canvas Quiz 3": '00 - canvasquiz3.csv',
         "Canvas Quiz 4": '00 - canvasquiz4.csv',
-        "Preceptor Tracker": '00 - ptrackero.csv'
+        "Preceptor Tracker": '00 - ptrackero.csv', 
+        "Social Drivers of Health": "00 - originalsdoh.csv"
     }
 
     column_value_mapping = {
@@ -76,6 +77,7 @@ def main():
         "Developmental Assessment": {"column": "SOCIAL/EMOTIONAL MILESTONES (choice=Calms down when spoken to or picked up)", "value": "Unchecked"},
         "NBME Exam": {"column": "Student Level", "value": "MS 3"},
         "Preceptor Tracker": {"column": "Manual Evaluations", "value": "Mid-Cycle Feedback"}
+        "Social Drivers of Health": {"column": "Domain (choice=Housing instability (e.g. homelessness, unsafe living conditions))", "value": "Unchecked"}
     }
 
     if uploaded_files:
@@ -131,6 +133,7 @@ def main():
                 df_10 = file_data.get("00 - canvasquiz3.csv", None)
                 df_11 = file_data.get("00 - canvasquiz4.csv", None)
                 df_12 = file_data.get("Preceptor Tracker", None)
+                df_13 = file_data.get("Social Drivers of Health", None)
 
                 df_2.to_csv('00 - originaloasis.csv', index=False)
                 df_3.to_csv('00 - export_results.csv', index=False)
@@ -143,7 +146,8 @@ def main():
                 df_10.to_csv('00 - canvasquiz3.csv', index=False)
                 df_11.to_csv('00 - canvasquiz4.csv', index=False)
                 df_12.to_csv('00 - ptrackero.csv', index=False)
-
+                df_13.to_csv('00 - originalsdoh.csv', index=False)
+                
                 observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
                 observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
                 observed.to_csv('00 - observed_report.csv',index=False)
@@ -1303,6 +1307,59 @@ def main():
                 df3['submitted_dev'] = df3['submitted_dev'].dt.strftime('%m-%d-%Y')
                 
                 df3.to_csv('x08 - devass.csv',index=False)
+
+                ###################################################SDOH#########################################################
+                df = pd.read_csv('00 - originalsdoh.csv')
+        
+                df.rename(columns={df.columns[3]: "email" }, inplace = True)
+                df.rename(columns={df.columns[2]: "submitted_sdoh" }, inplace = True)
+                
+                df['sdohass'] = '1'
+                
+                df.to_csv('sdohass.csv',index=False)
+                
+                FILETOMAP = "sdohass.csv"
+                RECORDIDMAPPER ='recordidmapper.csv'
+                COLUMN = 'email'
+                
+                df=pd.read_csv(FILETOMAP,dtype=str) #file you want to map to, in this case, I want to map IMP to the encounterids
+                
+                mydict = {}
+                with open('recordidmapper.csv', mode='r')as inp:     #file is the objects you want to map. I want to map the IMP in this file to diagnosis.csv
+                	reader = csv.reader(inp)
+                	df1 = {rows[0]:rows[2] for rows in reader} 
+                    
+                df['record_id'] = df[(COLUMN)].map(df1)               #'type' is the new column in the diagnosis file. 'encounter_id' is the key you are using to MAP 
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                first_column = df.pop('record_id')
+                
+                df.insert(0, 'record_id', first_column)
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                df=pd.read_csv(FILETOMAP,dtype=str)
+                
+                df.dropna(subset=['record_id'], inplace=True)
+                
+                df.to_csv(FILETOMAP,index=False)
+                
+                df2 = pd.read_csv(FILETOMAP,dtype=str)
+                
+                df3 = df2[['record_id','sdohass','submitted_sdoh']]
+                
+                df3 = df3.loc[df3['submitted_sdoh'] != '[not completed]']
+                
+                df3.to_csv(FILETOMAP,index=False)
+                
+                #df = pd.read_csv('devass.csv')
+                
+                df3['submitted_sdoh'] = df3['submitted_sdoh'].astype('datetime64[ns]')
+                df3['submitted_sdoh'] = df3['submitted_sdoh'].dt.strftime('%m-%d-%Y')
+                
+                df3.to_csv('x13 - sdoh.csv',index=False)
+                
                 #####################################################NBME###################################################################
                 import pandas as pd
                 df = pd.read_csv('00 - NBME_results.csv')
@@ -2865,6 +2922,38 @@ def main():
                 
                 # Step 6: Save the modified dataframe back to the original file
                 df_original.to_csv(ORIGINALA, index=False)
+
+                import pandas as pd
+                import numpy as np
+                
+                FILETOMAP = "x13 - sdoh.csv"
+                ORIGINALA = "mainfile.csv"
+                
+                # Step 1: Read the mapping file and the original file
+                df_map = pd.read_csv(FILETOMAP)
+                df_original = pd.read_csv(ORIGINALA, dtype=str)
+                
+                # Step 2: Ensure 'record_id' is a string and strip extra spaces
+                df_map['record_id'] = df_map['record_id'].astype(str).str.strip()
+                df_original['record_id'] = df_original['record_id'].astype(str).str.strip()
+                
+                # Step 3: Get column names to map (excluding 'record_id')
+                col_names = df_map.columns[1:]  # Adjust this to skip 'record_id'
+                
+                # Step 4: Create a dictionary for mapping from the df_map (each record_id maps to a row)
+                mapping_dict = {}
+                for _, row in df_map.iterrows():
+                    record_id = row['record_id']
+                    if pd.notna(record_id):  # Skip rows where 'record_id' is NaN
+                        mapping_dict[record_id] = row[1:].to_dict()  # Skipping 'record_id'
+                
+                # Step 5: Apply the mapping to df_original for each domain column
+                for col in col_names:
+                    df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
+                
+                # Step 6: Save the modified dataframe back to the original file
+                df_original.to_csv(ORIGINALA, index=False)
+        
         
                 import pandas as pd
                 import numpy as np
