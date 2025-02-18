@@ -12,7 +12,17 @@ from io import BytesIO
 # OpenAI API key setup (use secrets or environment variable for security)
 openai.api_key = st.secrets["openai"]["api_key"]
 
-def generate_pip(difficulty, explanation):
+# Load dataset function
+@st.cache_data
+def load_data():
+    if os.path.exists("mainfile.csv"):
+        return pd.read_csv("mainfile.csv")
+    else:
+        st.error(f"{"mainfile.csv"} not found. Please ensure it is generated before proceeding.")
+        return None
+
+# Function to generate Performance Improvement Plan (PIP)
+def generate_pip(all_feedback):
     prompt = f"""
     The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
     
@@ -22,19 +32,17 @@ def generate_pip(difficulty, explanation):
     - Recommended resources or actions for the student
     """
 
-    # Call OpenAI API using the ChatCompletion method (correct for version 0.28+)
+    # Call OpenAI API using the ChatCompletion method
     response = openai.ChatCompletion.create(
-        model="gpt-4",  # Or use "gpt-3.5-turbo" depending on your preference
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an expert in pediatric medical education."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=1000,  # Adjust based on your preference
+        max_tokens=1000,
     )
 
-    # Extract the PIP text from the response
-    pip_text = response['choices'][0]['message']['content'].strip()
-    return pip_text
+    return response['choices'][0]['message']['content'].strip()
 
 # Function to handle Canvas Quiz filename extraction based on week number
 def get_canvas_quiz_filename(filename):
@@ -3012,13 +3020,49 @@ def main():
                 today_date = datetime.now().strftime('%m/%d/%Y')
                 df_original['datez'] = today_date
 
+                df_original = df_original.loc[df_original['record_id'] == "aY24_6"]
                 # Save the cleaned dataframe to a CSV
+                
                 df_original.to_csv(ORIGINALA, index=False)
+
+                # Load the dataset immediately
+                df = load_data()
+                if df is not None:
+                    if "student_index" not in st.session_state:
+                        st.session_state.student_index = 0
+                
+                    # Process each student sequentially
+                    if st.session_state.student_index < len(df):
+                        student = df.iloc[st.session_state.student_index]
+                
+                        st.subheader(f"Processing Student Record ID: {student['record_id']}")
+                        st.write(f"**Feedback:** {student['all_feedback']}")
+                
+                        # Check if reflection already exists to prevent duplicate generation
+                        if pd.isna(student.get("reflection", None)):  # Check if 'reflection' column is empty
+                            with st.spinner("Generating PIP..."):
+                                pip_text = generate_pip(student["all_feedback"])
+                                st.write("### Performance Improvement Plan")
+                                st.write(pip_text)
+                
+                                # Save the reflection into the dataframe
+                                df.at[st.session_state.student_index, "reflection"] = pip_text
+                
+                                # Save updated dataframe back to mainfile.csv
+                                df.to_csv(ORIGINALA, index=False)
+                                st.success("Reflection saved!")
+                
+                        # Move to the next student automatically
+                        st.session_state.student_index += 1
+                        st.rerun()
+                    
+                    else:
+                        st.success("All reflections have been generated!")
         
                 ########################################################################################
                 ########################################################################################
         
-                csv_data = df_original.to_csv(index=False)
+                csv_data = df.to_csv(index=False)
         
                 st.download_button(
                     label="Download Modified CSV",
