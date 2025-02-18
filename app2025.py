@@ -27,22 +27,22 @@ def generate_pip(all_feedback):
     prompt = f"""
     The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
     
-    Generate a detailed Performance Improvement Plan (PIP) using clear bullet points. Structure it as follows:
+    Generate a detailed Performance Improvement Plan (PIP) using bullet points. Format it as follows:
     
-    **Identified Issues:**  
-    - Describe the key performance concerns.  
+    Identified Issues:
+    - Clearly list the key concerns.
+    - Use one bullet point per issue.
     
-    **Strategies for Improvement:**  
-    - Provide actionable steps to enhance performance.  
-    - List each strategy separately.  
+    Strategies for Improvement:
+    - Provide actionable steps to enhance performance.
+    - Keep each strategy on a separate bullet point.
     
-    **Recommended Resources:**  
-    - Suggest books, articles, or online resources to aid improvement.  
-    - Ensure each recommendation is on a new line.  
+    Recommended Resources:
+    - Suggest books, articles, or online resources to aid improvement.
+    - Each recommendation should be on a new line.
     
-    Use proper spacing and line breaks so that each bullet point appears on a new line.
+    Ensure each section has a title and each bullet point is on a new line.
     """
-
 
     # Call OpenAI API using the ChatCompletion method
     response = openai.ChatCompletion.create(
