@@ -3020,6 +3020,8 @@ def main():
                 today_date = datetime.now().strftime('%m/%d/%Y')
                 df_original['datez'] = today_date
 
+                df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
+
                 df_original = df_original.loc[df_original['record_id'] == "aY24_6"]
                 # Save the cleaned dataframe to a CSV
                 
