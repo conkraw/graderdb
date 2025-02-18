@@ -3069,12 +3069,12 @@ def main():
                                 # Save the reflection into the dataframe
                                 df.at[st.session_state.student_index, "reflection"] = pip_text
                                 
-                                df["reflection"] = df["reflection"].astype(str)  # Ensure all entries are strings
-                                df["reflection"] = df["reflection"].str.replace("\n", " ") 
+                                #df["reflection"] = df["reflection"].astype(str)  # Ensure all entries are strings
+                                #df["reflection"] = df["reflection"].str.replace("\n", " ") 
 
                                 # Save updated dataframe back to mainfile.csv
-                                df = df[['record_id','reflection']]
-                                df.to_csv("reflection.csv", index=False, encoding="utf-8")
+                                #df = df[['record_id','reflection']]
+                                df.to_csv("reflection.csv", index=False)
                                 st.success("Reflection saved!")
 
                         # Move to the next student automatically **only if there are more students**
@@ -3090,11 +3090,11 @@ def main():
                             #st.dataframe(df.reset_index(drop=True))
                         
                             # Provide Download Button
-                            csv_data = df.to_csv(index=False).encode("utf-8")
+                            csv_data = df.to_csv(index=False)
                             st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
 
-                            csv_data = df_original.to_csv(index=False)
-                            st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
+                            #csv_data = df_original.to_csv(index=False)
+                            #st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
 
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
