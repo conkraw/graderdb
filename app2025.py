@@ -3052,7 +3052,7 @@ def main():
                                 df.at[st.session_state.student_index, "reflection"] = pip_text
                 
                                 # Save updated dataframe back to mainfile.csv
-                                df.to_csv(ORIGINALA, index=False)
+                                df.to_csv(ORIGINALA, index=False); st.dataframe(df)
                                 st.success("Reflection saved!")
                 
                         # Move to the next student automatically
