@@ -3057,7 +3057,9 @@ def main():
                 
                         # Move to the next student automatically
                         st.session_state.student_index += 1
-                        st.rerun()
+
+                        if st.session_state.student_index < len(df):
+                            st.rerun()
                     
                     else:
                         st.success("All reflections have been generated!")
