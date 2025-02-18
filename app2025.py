@@ -3047,8 +3047,8 @@ def main():
                     if st.session_state.student_index < len(df):
                         student = df.iloc[st.session_state.student_index]
                 
-                        st.subheader(f"Processing Student Record ID: {student['record_id']}")
-                        st.write(f"**Feedback:** {student['all_feedback']}")
+                        #st.subheader(f"Processing Student Record ID: {student['record_id']}")
+                        #st.write(f"**Feedback:** {student['all_feedback']}")
                 
                         # Check if reflection already exists to prevent duplicate generation
                         if pd.isna(student.get("reflection", None)):  # Check if 'reflection' column is empty
