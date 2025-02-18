@@ -27,14 +27,22 @@ def generate_pip(all_feedback):
     prompt = f"""
     The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
     
-    Generate a detailed Performance Improvement Plan (PIP) in bullet-point format. Structure it as follows:
+    Generate a detailed Performance Improvement Plan (PIP) using clear bullet points. Structure it as follows:
     
-    - **Identified Issues:** Clearly list the key concerns.
-    - **Strategies for Improvement:** Provide actionable steps to enhance performance.
-    - **Recommended Resources:** Suggest books, articles, or online resources to aid improvement.
+    **Identified Issues:**  
+    - Describe the key performance concerns.  
     
-    Ensure each section is clearly labeled and uses bullet points for clarity.
+    **Strategies for Improvement:**  
+    - Provide actionable steps to enhance performance.  
+    - List each strategy separately.  
+    
+    **Recommended Resources:**  
+    - Suggest books, articles, or online resources to aid improvement.  
+    - Ensure each recommendation is on a new line.  
+    
+    Use proper spacing and line breaks so that each bullet point appears on a new line.
     """
+
 
     # Call OpenAI API using the ChatCompletion method
     response = openai.ChatCompletion.create(
@@ -3065,7 +3073,8 @@ def main():
                                 df["reflection"] = df["reflection"].str.replace("\n", " ") 
 
                                 # Save updated dataframe back to mainfile.csv
-                                df.to_csv(ORIGINALA, index=False, encoding="utf-8")
+                                df = df[['record_id','reflection']]
+                                df.to_csv("reflection.csv", index=False, encoding="utf-8")
                                 st.success("Reflection saved!")
 
                         # Move to the next student automatically **only if there are more students**
@@ -3078,16 +3087,14 @@ def main():
                             st.write("You can now download the updated dataset.")
                         
                             # Display DataFrame
-                            st.dataframe(df.reset_index(drop=True))
+                            #st.dataframe(df.reset_index(drop=True))
                         
                             # Provide Download Button
                             csv_data = df.to_csv(index=False).encode("utf-8")
-                            st.download_button(
-                                label="Download Updated CSV",
-                                data=csv_data,
-                                file_name="updated_mainfile.csv",
-                                mime="text/csv"
-                            )
+                            st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
+
+                            csv_data = df_original.to_csv(index=False)
+                            st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
 
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
