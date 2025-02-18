@@ -3061,28 +3061,28 @@ def main():
                                 # Save updated dataframe back to mainfile.csv
                                 df.to_csv(ORIGINALA, index=False); st.dataframe(df.reset_index(drop=True))
                                 st.success("Reflection saved!")
-                
-                        # Move to the next student automatically
-                        st.session_state.student_index += 1
 
+                        # Move to the next student automatically **only if there are more students**
+                        st.session_state.student_index += 1
+                        
                         if st.session_state.student_index < len(df):
                             st.rerun()
-                    
-                    else:
-                        st.success("All reflections have been generated!")
-                        st.write("You can now download the updated dataset.")
-                        st.download_button("Download Updated CSV", df.to_csv(index=False), "updated_mainfile.csv", "text/csv")
-                ########################################################################################
-                ########################################################################################
-        
-                #csv_data = df.to_csv(index=False)
-        
-                #st.download_button(
-                #    label="Download Modified CSV",
-                #    data=csv_data,
-                #    file_name="mainfile_for_upload.csv",
-                #    mime="text/csv"
-                #)
+                        else:
+                            st.success("All reflections have been generated!")
+                            st.write("You can now download the updated dataset.")
+                        
+                            # Display DataFrame
+                            st.dataframe(df.reset_index(drop=True))
+                        
+                            # Provide Download Button
+                            csv_data = df.to_csv(index=False).encode("utf-8")
+                            st.download_button(
+                                label="Download Updated CSV",
+                                data=csv_data,
+                                file_name="updated_mainfile.csv",
+                                mime="text/csv"
+                            )
+
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
     else:
