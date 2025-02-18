@@ -38,11 +38,13 @@ def generate_pip(all_feedback):
     - Keep each strategy on a separate bullet point.
     
     Recommended Resources:
-    - Suggest books, articles, or online resources to aid improvement.
-    - Each recommendation should be on a new line.
+    - Only recommend from these sources: Nelson Textbook of Pediatrics, Rudolph's Pediatrics, and UpToDate.
+    - Do not suggest any other books, websites, or resources.
+    - If applicable, specify how these resources can be used for improvement.
     
-    Ensure each section has a title and each bullet point is on a new line.
+    Ensure each section has a title, and each bullet point appears on a new line.
     """
+
 
     # Call OpenAI API using the ChatCompletion method
     response = openai.ChatCompletion.create(
