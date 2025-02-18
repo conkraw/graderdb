@@ -5,6 +5,36 @@ import io
 import openpyxl
 import re
 import os
+import openai
+from docx import Document
+from io import BytesIO
+
+# OpenAI API key setup (use secrets or environment variable for security)
+openai.api_key = st.secrets["openai"]["api_key"]
+
+def generate_pip(difficulty, explanation):
+    prompt = f"""
+    The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
+    
+    Generate a detailed Performance Improvement Plan (PIP) that includes:
+    - A summary of the identified issues
+    - Specific strategies to improve in these areas
+    - Recommended resources or actions for the student
+    """
+
+    # Call OpenAI API using the ChatCompletion method (correct for version 0.28+)
+    response = openai.ChatCompletion.create(
+        model="gpt-4",  # Or use "gpt-3.5-turbo" depending on your preference
+        messages=[
+            {"role": "system", "content": "You are an expert in pediatric medical education."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000,  # Adjust based on your preference
+    )
+
+    # Extract the PIP text from the response
+    pip_text = response['choices'][0]['message']['content'].strip()
+    return pip_text
 
 # Function to handle Canvas Quiz filename extraction based on week number
 def get_canvas_quiz_filename(filename):
