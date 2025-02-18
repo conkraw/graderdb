@@ -12,15 +12,14 @@ from io import BytesIO
 # OpenAI API key setup (use secrets or environment variable for security)
 openai.api_key = st.secrets["openai"]["api_key"]
 
-# Load dataset function
 @st.cache_data
+# Load dataset function
 def load_data():
-    if os.path.exists("mainfile.csv"):
-        return pd.read_csv("mainfile.csv")
-    else:
-        st.error(f"{"mainfile.csv"} not found. Please ensure it is generated before proceeding.")
-        return None
-
+    if os.path.exists(ORIGINALA):
+        df = pd.read_csv(ORIGINALA, encoding="utf-8")  # Ensure proper encoding
+        st.write("Detected Columns:", df.columns.tolist())  # Debug: Print column names
+        return df
+        
 # Function to generate Performance Improvement Plan (PIP)
 def generate_pip(all_feedback):
     prompt = f"""
@@ -3025,7 +3024,7 @@ def main():
                 df_original = df_original.loc[df_original['record_id'] == "aY24_6"]
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
+                df_original.to_csv(ORIGINALA, index=False)
 
                 # Load the dataset immediately
                 df = load_data()
