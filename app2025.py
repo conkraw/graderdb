@@ -40,7 +40,7 @@ def generate_pip(all_feedback):
             {"role": "system", "content": "You are an expert in pediatric medical education."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=1000,
+        max_tokens=500,
     )
 
     return response['choices'][0]['message']['content'].strip()
@@ -3059,7 +3059,7 @@ def main():
                                 df.at[st.session_state.student_index, "reflection"] = pip_text
                 
                                 # Save updated dataframe back to mainfile.csv
-                                df.to_csv(ORIGINALA, index=False); st.dataframe(df)
+                                df.to_csv(ORIGINALA, index=False); st.dataframe(df.reset_index(drop=True))
                                 st.success("Reflection saved!")
                 
                         # Move to the next student automatically
