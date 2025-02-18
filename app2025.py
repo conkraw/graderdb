@@ -27,12 +27,10 @@ def generate_pip(all_feedback):
     prompt = f"""
     The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
     
-    Generate a Performance Improvement Plan (PIP) in paragraph form, without bullet points, including:
+    Generate a detailed Performance Improvement Plan (PIP) that includes:
     - A brief summary of the identified issues
-    - Key strategies for improvement
-    - Recommended resources or actions
-    
-    Write the response in a structured and readable paragraph format.
+    - Specific strategies to improve in these areas
+    - Recommended resources or actions for the student
     """
 
     # Call OpenAI API using the ChatCompletion method
