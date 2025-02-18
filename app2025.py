@@ -38,7 +38,7 @@ def generate_pip(all_feedback):
     - Keep each strategy on a separate bullet point.
     
     Recommended Resources:
-    - Only recommend from these sources: Nelson Textbook of Pediatrics, Rudolph's Pediatrics, and UpToDate.
+    - Only recommend from these sources: Nelson Textbook of Pediatrics and UpToDate.
     - Do not suggest any other books, websites, or resources.
     - If applicable, specify how these resources can be used for improvement.
     
