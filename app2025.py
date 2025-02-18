@@ -12,6 +12,8 @@ from io import BytesIO
 # OpenAI API key setup (use secrets or environment variable for security)
 openai.api_key = st.secrets["openai"]["api_key"]
 
+ORIGINALA = "mainfile.csv"
+
 @st.cache_data
 # Load dataset function
 def load_data():
