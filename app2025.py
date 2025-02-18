@@ -3031,9 +3031,12 @@ def main():
                 # Load the dataset immediately
                 df = load_data()
                 if df is not None:
+                    if "reflection" not in df.columns:
+                        df["reflection"] = None 
+
                     if "student_index" not in st.session_state:
-                        st.session_state.student_index = 0
-                
+                        st.session_state.student_index = 0     
+                        
                     # Process each student sequentially
                     if st.session_state.student_index < len(df):
                         student = df.iloc[st.session_state.student_index]
