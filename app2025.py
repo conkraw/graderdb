@@ -3059,9 +3059,12 @@ def main():
                 
                                 # Save the reflection into the dataframe
                                 df.at[st.session_state.student_index, "reflection"] = pip_text
-                
+                                
+                                df["reflection"] = df["reflection"].astype(str)  # Ensure all entries are strings
+                                df["reflection"] = df["reflection"].str.replace("\n", " ") 
+
                                 # Save updated dataframe back to mainfile.csv
-                                df.to_csv(ORIGINALA, index=False); st.dataframe(df.reset_index(drop=True))
+                                df.to_csv(ORIGINALA, index=False, encoding="utf-8")
                                 st.success("Reflection saved!")
 
                         # Move to the next student automatically **only if there are more students**
