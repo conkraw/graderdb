@@ -3061,18 +3061,19 @@ def main():
                     
                     else:
                         st.success("All reflections have been generated!")
-        
+                        st.write("You can now download the updated dataset.")
+                        st.download_button("Download Updated CSV", df.to_csv(index=False), "updated_mainfile.csv", "text/csv")
                 ########################################################################################
                 ########################################################################################
         
-                csv_data = df.to_csv(index=False)
+                #csv_data = df.to_csv(index=False)
         
-                st.download_button(
-                    label="Download Modified CSV",
-                    data=csv_data,
-                    file_name="mainfile_for_upload.csv",
-                    mime="text/csv"
-                )
+                #st.download_button(
+                #    label="Download Modified CSV",
+                #    data=csv_data,
+                #    file_name="mainfile_for_upload.csv",
+                #    mime="text/csv"
+                #)
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
     else:
