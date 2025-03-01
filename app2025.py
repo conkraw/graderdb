@@ -1592,17 +1592,80 @@ def main():
                 import pandas as pd
                 import numpy as np
                 import csv
-                
+
                 df = pd.read_csv('00 - canvasquiz2.csv')
                 df.rename(columns={df.columns[2]: "email_2" }, inplace = True)
-                
-                df = df[['email_2',"score"]]
-                
+
+                fixed_columns = ['email_2', 'score']
+
+                # Define a regex that matches file IDs of interest; for example, 90165434, 90165435, ...
+                regex_pattern = r'^(90165434|90165435|90165436|90165437|90165438)'
+
+                # Filter columns that start with any of these file IDs
+                file_columns = df.filter(regex=regex_pattern).columns.tolist()
+
+                # Combine the fixed columns with the filtered file columns
+                selected_columns = fixed_columns + file_columns
+
+                # Create a new DataFrame with just those columns
+                df = df[selected_columns]
+
                 df['quiz2'] = round((df['score'].astype(int)/15)*100,1)
-                
-                df=df.groupby('email_2').agg({'quiz2':max})
-                
-                df.to_csv('x10 - canvasquiz2.csv')
+
+                # df=df.groupby('email_2').agg({'quiz2':max})
+                df_agg = df.groupby('email_2', as_index=False)['quiz2'].max()
+                df = pd.merge(df, df_agg, on='email_2', suffixes=('', '_max'))
+
+                # ---------------------------------------------------------------------------------
+                # BEGIN: Added code to flag incorrect answers in a new column, 'quiz_2_wrong'
+                # ---------------------------------------------------------------------------------
+
+                # Define the correct answers for each question
+                correct_answers = {
+                    '90165434': "Indicate that there may be a risk for toxicity in genetically susceptible individuals. Provide anticipatory guidance and follow-up lead levels at recommended intervals.",
+                    '90165435': "Reassure the family that although the paint chip may contain a large amount of lead, only a very small amount will be absorbed.",
+                    '90165436': "Repeat lead level with a venous sample.",
+                    '90165437': "24 months",
+                    '90165438': "18 months"
+                }
+
+                # Define the label to assign if a question is wrong
+                wrong_labels = {
+                    '90165434': 'q2a',
+                    '90165435': 'q2b',
+                    '90165436': 'q2c',
+                    '90165437': 'q2d',
+                    '90165438': 'q2e'
+                }
+
+                def check_wrong(row):
+                    wrong = []
+                    for key, correct_ans in correct_answers.items():
+                        # Find the column for this file ID
+                        col_candidates = [col for col in df.columns if col.startswith(key)]
+                        if col_candidates:
+                            col = col_candidates[0]
+                            # Compare student's response (as string) to the correct answer
+                            if str(row[col]).strip() != correct_ans.strip():
+                                wrong.append(wrong_labels[key])
+                    # Decide how to label if multiple questions are wrong
+                    if len(wrong) == 1:
+                        return wrong[0]
+                    elif len(wrong) > 1:
+                        return np.random.choice(wrong)
+                    else:
+                        # If no questions are wrong, return "q2cor" instead of an empty string
+                        return "q2cor"
+
+                # Create the 'quiz_2_wrong' column
+                df['quiz_2_wrong'] = df.apply(check_wrong, axis=1)
+
+                # ---------------------------------------------------------------------------------
+                # END: Added code
+                # ---------------------------------------------------------------------------------
+
+                df.to_csv('x10 - canvasquiz2.csv', index=False)
+
                 
                 FILETOMAP = "x10 - canvasquiz2.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
