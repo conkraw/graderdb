@@ -1699,7 +1699,7 @@ def main():
                 
                 df2 = pd.read_csv(FILETOMAP,dtype=str)
                 
-                df3 = df2[['record_id','quiz2']]
+                df3 = df2[['record_id','quiz2','quiz_2_wrong']]
                 
                 df3.to_csv(FILETOMAP,index=False)
                 
