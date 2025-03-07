@@ -3115,7 +3115,7 @@ def main():
                 
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False)
+                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
 
                 # Load the dataset immediately
                 df = load_data()
@@ -3167,8 +3167,8 @@ def main():
                             csv_data = df.to_csv(index=False)
                             st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
 
-                            csv_data = df_original.to_csv(index=False)
-                            st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
+                            #csv_data = df_original.to_csv(index=False)
+                            #st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
 
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
