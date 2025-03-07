@@ -58,6 +58,45 @@ def generate_pip(all_feedback):
 
     return response['choices'][0]['message']['content'].strip()
 
+# New function to generate learning goals, strengths, and opportunities for improvement
+def generate_learning_goals_and_lgs(all_feedback):
+    prompt = f"""
+    The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
+    
+    Based on this feedback, please perform the following tasks:
+    
+    1. Generate up to 3 brief learning goals.
+    2. Identify up to 3 brief items that highlight the student's strengths.
+    3. Identify up to 3 brief items that highlight the student's opportunities for improvement.
+    
+    Provide the output in the following JSON format exactly:
+    
+    {{
+      "learning_goals": ["goal1", "goal2", "goal3"],
+      "strengths_lg": ["strength1", "strength2", "strength3"],
+      "weaknesses_lg": ["opportunity1", "opportunity2", "opportunity3"]
+    }}
+    
+    If there are fewer than 3 items in any category, only include the available items.
+    Ensure that each item is concise and to the point.
+    """
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are an expert in pediatric medical education."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300,
+    )
+    
+    result = response['choices'][0]['message']['content'].strip()
+    try:
+        result_json = json.loads(result)
+    except json.JSONDecodeError:
+        result_json = {"error": "Failed to parse JSON", "raw_output": result}
+    return result_json
+
 # Function to handle Canvas Quiz filename extraction based on week number
 def get_canvas_quiz_filename(filename):
     match = re.search(r"Week (\d+)\s*-", filename)  # Search for "Week X -"
@@ -3120,8 +3159,9 @@ def main():
                 # Load the dataset immediately
                 df = load_data()
                 if df is not None:
-                    if "reflection" not in df.columns:
-                        df["reflection"] = None 
+                    for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
+                        if col not in df.columns:
+                            df[col] = None 
 
                     if "student_index" not in st.session_state:
                         st.session_state.student_index = 0     
@@ -3143,11 +3183,16 @@ def main():
                                 # Save the reflection into the dataframe
                                 df.at[st.session_state.student_index, "reflection"] = pip_text
                                 
-                                #df["reflection"] = df["reflection"].astype(str)  # Ensure all entries are strings
-                                #df["reflection"] = df["reflection"].str.replace("\n", " ") 
+                                # Generate learning goals, strengths, and weaknesses
+                                lg_data = generate_learning_goals_and_lgs(student["all_feedback"])
+                                if "error" in lg_data:
+                                    st.error("Error generating learning goals: " + lg_data.get("raw_output", ""))
+                                else:
+                                    # Save as newline-separated strings for clarity
+                                    df.at[st.session_state.student_index, "learning_goals"] = "\n".join(lg_data.get("learning_goals", []))
+                                    df.at[st.session_state.student_index, "strengths_lg"] = "\n".join(lg_data.get("strengths_lg", []))
+                                    df.at[st.session_state.student_index, "weaknesses_lg"] = "\n".join(lg_data.get("weaknesses_lg", []))
 
-                                # Save updated dataframe back to mainfile.csv
-                                #df = df[['record_id','reflection']]
                                 df.to_csv("reflection.csv", index=False)
                                 st.success("Reflection saved!")
 
