@@ -5,98 +5,6 @@ import io
 import openpyxl
 import re
 import os
-import openai
-from docx import Document
-from io import BytesIO
-import json
-
-# OpenAI API key setup (use secrets or environment variable for security)
-openai.api_key = st.secrets["openai"]["api_key"]
-
-ORIGINALA = "mainfile.csv"
-
-@st.cache_data
-# Load dataset function
-def load_data():
-    if os.path.exists(ORIGINALA):
-        df = pd.read_csv(ORIGINALA, encoding="utf-8")  # Ensure proper encoding
-        st.write("Detected Columns:", df.columns.tolist())  # Debug: Print column names
-        return df
-        
-# Function to generate Performance Improvement Plan (PIP)
-def generate_pip(all_feedback):
-    prompt = f"""
-    The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
-    
-    Generate a detailed Performance Improvement Plan (PIP) using bullet points. Format it as follows:
-    
-    Identified Issues:
-    - Clearly list the key concerns.
-    - Use one bullet point per issue.
-    
-    Strategies for Improvement:
-    - Provide actionable steps to enhance performance.
-    - Keep each strategy on a separate bullet point.
-    
-    Recommended Resources:
-    - Only recommend from these sources: Nelson Textbook of Pediatrics and UpToDate.
-    - Do not suggest any other books, websites, or resources.
-    - If applicable, specify how these resources can be used for improvement.
-    
-    Ensure each section has a title, and each bullet point appears on a new line.
-    """
-
-
-    # Call OpenAI API using the ChatCompletion method
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are an expert in pediatric medical education."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=500,
-    )
-
-    return response['choices'][0]['message']['content'].strip()
-
-# New function to generate learning goals, strengths, and opportunities for improvement
-def generate_learning_goals_and_lgs(all_feedback):
-    prompt = f"""
-    The user is a medical student in a pediatric clerkship and received the following feedback: {all_feedback}
-    
-    Based on this feedback, please perform the following tasks:
-    
-    1. Generate up to 3 brief learning goals.
-    2. Identify up to 3 brief items that highlight the student's strengths.
-    3. Identify up to 3 brief items that highlight the student's opportunities for improvement.
-    
-    Provide the output in the following JSON format exactly:
-    
-    {{
-      "learning_goals": ["goal1", "goal2", "goal3"],
-      "strengths_lg": ["strength1", "strength2", "strength3"],
-      "weaknesses_lg": ["opportunity1", "opportunity2", "opportunity3"]
-    }}
-    
-    If there are fewer than 3 items in any category, only include the available items.
-    Ensure that each item is concise and to the point.
-    """
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are an expert in pediatric medical education."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=300,
-    )
-    
-    result = response['choices'][0]['message']['content'].strip()
-    try:
-        result_json = json.loads(result)
-    except json.JSONDecodeError:
-        result_json = {"error": "Failed to parse JSON", "raw_output": result}
-    return result_json
 
 # Function to handle Canvas Quiz filename extraction based on week number
 def get_canvas_quiz_filename(filename):
@@ -841,28 +749,21 @@ def main():
                 
                 # Find the maximum 'Time entered' for each email
                 max_time = df.groupby('Email')['Time entered'].max().reset_index()
+                
+                # Rename the 'Time entered' column to 'max_time_entered'
                 max_time = max_time.rename(columns={'Time entered': 'max_time_entered'})
                 
-                # Find the minimum 'Time entered' for each email
-                min_time = df.groupby('Email')['Time entered'].min().reset_index()
-                min_time = min_time.rename(columns={'Time entered': 'min_time_entered'})
-                
-                # Merge both max and min time into item_counts
-                item_counts = df[['Email']].drop_duplicates()
+                # Merge the 'max_time_entered' back into the item_counts dataframe
                 item_counts = pd.merge(item_counts, max_time, on='Email', how='left')
-                item_counts = pd.merge(item_counts, min_time, on='Email', how='left')
                 
-                # Create 'submitted_ce' column based on the max 'Time entered'
+                # Create 'submitted_ce' column based on the max 'Time entered' column
                 item_counts['submitted_ce'] = item_counts['max_time_entered'].dt.strftime('%m-%d-%Y 23:59')
                 
-                # Create 'submitted_ce_min' column based on the min 'Time entered'
-                item_counts['submitted_ce_min'] = item_counts['min_time_entered'].dt.strftime('%m-%d-%Y 23:59')
+                # Drop the 'max_time_entered' column after creating 'submitted_ce'
+                item_counts = item_counts.drop(columns=['max_time_entered'])
                 
-                # Drop the unnecessary columns
-                item_counts = item_counts.drop(columns=['max_time_entered', 'min_time_entered'])
-                
-                # Reset index
-                item_counts.reset_index(drop=True, inplace=True)
+                # Reset index to match the original DataFrame structure
+                item_counts.reset_index(inplace=False)
         
                 item_counts.to_csv('x01 - clinical_domains.csv',index=False)
         
@@ -1526,7 +1427,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz1'] = round((df['score'].astype(int)/20)*100,1)
+                df['quiz1'] = round((df['score'].astype(int)/15)*100,1)
                 
                 df=df.groupby('email_2').agg({'quiz1':max})
                 
@@ -1632,80 +1533,17 @@ def main():
                 import pandas as pd
                 import numpy as np
                 import csv
-
+                
                 df = pd.read_csv('00 - canvasquiz2.csv')
                 df.rename(columns={df.columns[2]: "email_2" }, inplace = True)
-
-                fixed_columns = ['email_2', 'score']
-
-                # Define a regex that matches file IDs of interest; for example, 90165434, 90165435, ...
-                regex_pattern = r'^(90165434|90165435|90165436|90165437|90165438)'
-
-                # Filter columns that start with any of these file IDs
-                file_columns = df.filter(regex=regex_pattern).columns.tolist()
-
-                # Combine the fixed columns with the filtered file columns
-                selected_columns = fixed_columns + file_columns
-
-                # Create a new DataFrame with just those columns
-                df = df[selected_columns]
-
-                df['quiz2'] = round((df['score'].astype(int)/20)*100,1)
-
-                # df=df.groupby('email_2').agg({'quiz2':max})
-                df_agg = df.groupby('email_2', as_index=False)['quiz2'].max()
-                df = pd.merge(df, df_agg, on='email_2', suffixes=('', '_max'))
-
-                # ---------------------------------------------------------------------------------
-                # BEGIN: Added code to flag incorrect answers in a new column, 'quiz_2_wrong'
-                # ---------------------------------------------------------------------------------
-
-                # Define the correct answers for each question
-                correct_answers = {
-                    '90165434': "Indicate that there may be a risk for toxicity in genetically susceptible individuals. Provide anticipatory guidance and follow-up lead levels at recommended intervals.",
-                    '90165435': "Reassure the family that although the paint chip may contain a large amount of lead, only a very small amount will be absorbed.",
-                    '90165436': "Repeat lead level with a venous sample.",
-                    '90165437': "24 months",
-                    '90165438': "18 months"
-                }
-
-                # Define the label to assign if a question is wrong
-                wrong_labels = {
-                    '90165434': 'q2a',
-                    '90165435': 'q2b',
-                    '90165436': 'q2c',
-                    '90165437': 'q2d',
-                    '90165438': 'q2e'
-                }
-
-                def check_wrong(row):
-                    wrong = []
-                    for key, correct_ans in correct_answers.items():
-                        # Find the column for this file ID
-                        col_candidates = [col for col in df.columns if col.startswith(key)]
-                        if col_candidates:
-                            col = col_candidates[0]
-                            # Compare student's response (as string) to the correct answer
-                            if str(row[col]).strip() != correct_ans.strip():
-                                wrong.append(wrong_labels[key])
-                    # Decide how to label if multiple questions are wrong
-                    if len(wrong) == 1:
-                        return wrong[0]
-                    elif len(wrong) > 1:
-                        return np.random.choice(wrong)
-                    else:
-                        # If no questions are wrong, return "q2cor" instead of an empty string
-                        return "q2cor"
-
-                # Create the 'quiz_2_wrong' column
-                df['quiz_2_wrong'] = df.apply(check_wrong, axis=1)
-
-                # ---------------------------------------------------------------------------------
-                # END: Added code
-                # ---------------------------------------------------------------------------------
-
-                df.to_csv('x10 - canvasquiz2.csv', index=False)
-
+                
+                df = df[['email_2',"score"]]
+                
+                df['quiz2'] = round((df['score'].astype(int)/15)*100,1)
+                
+                df=df.groupby('email_2').agg({'quiz2':max})
+                
+                df.to_csv('x10 - canvasquiz2.csv')
                 
                 FILETOMAP = "x10 - canvasquiz2.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
@@ -1739,7 +1577,7 @@ def main():
                 
                 df2 = pd.read_csv(FILETOMAP,dtype=str)
                 
-                df3 = df2[['record_id','quiz2','quiz_2_wrong']]
+                df3 = df2[['record_id','quiz2']]
                 
                 df3.to_csv(FILETOMAP,index=False)
                 
@@ -1812,7 +1650,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz3'] = round((df['score'].astype(int)/20)*100,1) ###############
+                df['quiz3'] = round((df['score'].astype(int)/15)*100,1) ###############
                 
                 df=df.groupby('email_2').agg({'quiz3':max}) ###############
                 
@@ -1923,7 +1761,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz4'] = round((df['score'].astype(int)/20)*100,1) ###############
+                df['quiz4'] = round((df['score'].astype(int)/15)*100,1) ###############
                 
                 df=df.groupby('email_2').agg({'quiz4':max}) ###############
                 
@@ -3141,81 +2979,23 @@ def main():
                     if df_original[col].dtype in ['float64', 'int64'] and col not in no_fill_columns:
                         df_original[col] = df_original[col].apply(lambda x: int(x) if x == int(x) else x)
 
-                #today_date = datetime.now().strftime('%m-%d-%Y')
-                #df_original['datez'] = today_date
+                today_date = datetime.now().strftime('%m/%d/%Y')
+                df_original['datez'] = today_date
 
-                df_original['datez'] = datetime.now().strftime('%m-%d-%Y')
-
-                df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
-
-                df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
-
-                if "reflection" not in df_original.columns:
-                    df_original["reflection"] = None
-                
                 # Save the cleaned dataframe to a CSV
-                
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
-
-                # Load the dataset immediately
-                df = load_data()
-                if df is not None:
-                    for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
-                        if col not in df.columns:
-                            df[col] = None 
-
-                    if "student_index" not in st.session_state:
-                        st.session_state.student_index = 0     
-                        
-                    # Process each student sequentially
-                    if st.session_state.student_index < len(df):
-                        student = df.iloc[st.session_state.student_index]
-                
-                        st.subheader(f"Processing Student Record ID: {student['record_id']}")
-                        st.write(f"**Feedback:** {student['all_feedback']}")
-                
-                        # Check if reflection already exists to prevent duplicate generation
-                        if pd.isna(student.get("reflection", None)):  # Check if 'reflection' column is empty
-                            with st.spinner("Generating PIP..."):
-                                pip_text = generate_pip(student["all_feedback"])
-                                st.write("### Performance Improvement Plan")
-                                st.write(pip_text)
-                
-                                # Save the reflection into the dataframe
-                                df.at[st.session_state.student_index, "reflection"] = pip_text
-                                
-                                # Generate learning goals, strengths, and weaknesses
-                                lg_data = generate_learning_goals_and_lgs(student["all_feedback"])
-                                if "error" in lg_data:
-                                    st.error("Error generating learning goals: " + lg_data.get("raw_output", ""))
-                                else:
-                                    # Save as newline-separated strings for clarity
-                                    df.at[st.session_state.student_index, "learning_goals"] = "\n".join(lg_data.get("learning_goals", []))
-                                    df.at[st.session_state.student_index, "strengths_lg"] = "\n".join(lg_data.get("strengths_lg", []))
-                                    df.at[st.session_state.student_index, "weaknesses_lg"] = "\n".join(lg_data.get("weaknesses_lg", []))
-
-                                df.to_csv("reflection.csv", index=False)
-                                st.success("Reflection saved!")
-
-                        # Move to the next student automatically **only if there are more students**
-                        st.session_state.student_index += 1
-                        
-                        if st.session_state.student_index < len(df):
-                            st.rerun()
-                        else:
-                            st.success("All reflections have been generated!")
-                            st.write("You can now download the updated dataset.")
-                        
-                            # Display DataFrame
-                            #st.dataframe(df.reset_index(drop=True))
-                        
-                            # Provide Download Button
-                            csv_data = df.to_csv(index=False)
-                            st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
-
-                            #csv_data = df_original.to_csv(index=False)
-                            #st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
-
+                df_original.to_csv(ORIGINALA, index=False)
+        
+                ########################################################################################
+                ########################################################################################
+        
+                csv_data = df_original.to_csv(index=False)
+        
+                st.download_button(
+                    label="Download Modified CSV",
+                    data=csv_data,
+                    file_name="mainfile_for_upload.csv",
+                    mime="text/csv"
+                )
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
     else:
