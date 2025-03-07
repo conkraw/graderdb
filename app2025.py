@@ -1427,7 +1427,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz1'] = round((df['score'].astype(int)/15)*100,1)
+                df['quiz1'] = round((df['score'].astype(int)/20)*100,1)
                 
                 df=df.groupby('email_2').agg({'quiz1':max})
                 
@@ -1539,7 +1539,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz2'] = round((df['score'].astype(int)/15)*100,1)
+                df['quiz2'] = round((df['score'].astype(int)/20)*100,1)
                 
                 df=df.groupby('email_2').agg({'quiz2':max})
                 
@@ -1650,7 +1650,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz3'] = round((df['score'].astype(int)/15)*100,1) ###############
+                df['quiz3'] = round((df['score'].astype(int)/20)*100,1) ###############
                 
                 df=df.groupby('email_2').agg({'quiz3':max}) ###############
                 
@@ -1761,7 +1761,7 @@ def main():
                 
                 df = df[['email_2',"score"]]
                 
-                df['quiz4'] = round((df['score'].astype(int)/15)*100,1) ###############
+                df['quiz4'] = round((df['score'].astype(int)/20)*100,1) ###############
                 
                 df=df.groupby('email_2').agg({'quiz4':max}) ###############
                 
