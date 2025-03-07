@@ -3130,8 +3130,8 @@ def main():
                     if st.session_state.student_index < len(df):
                         student = df.iloc[st.session_state.student_index]
                 
-                        #st.subheader(f"Processing Student Record ID: {student['record_id']}")
-                        #st.write(f"**Feedback:** {student['all_feedback']}")
+                        st.subheader(f"Processing Student Record ID: {student['record_id']}")
+                        st.write(f"**Feedback:** {student['all_feedback']}")
                 
                         # Check if reflection already exists to prevent duplicate generation
                         if pd.isna(student.get("reflection", None)):  # Check if 'reflection' column is empty
@@ -3148,7 +3148,7 @@ def main():
 
                                 # Save updated dataframe back to mainfile.csv
                                 #df = df[['record_id','reflection']]
-                                df.to_csv("reflection.csv", index=False); st.dataframe(df)
+                                df.to_csv("reflection.csv", index=False)
                                 st.success("Reflection saved!")
 
                         # Move to the next student automatically **only if there are more students**
