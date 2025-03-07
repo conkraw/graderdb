@@ -3074,7 +3074,7 @@ def main():
                     df_original[col] = df_original['record_id'].map(lambda x: mapping_dict.get(x, {}).get(col, np.nan))
                 
                 # Step 6: Save the modified dataframe back to the original file
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
+                df_original.to_csv(ORIGINALA, index=False)
         
         
                 import pandas as pd
@@ -3115,7 +3115,7 @@ def main():
                 
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False)
+                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
 
                 # Load the dataset immediately
                 df = load_data()
