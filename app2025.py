@@ -19,7 +19,7 @@ ORIGINALA = "mainfile.csv"
 def load_data():
     if os.path.exists(ORIGINALA):
         df = pd.read_csv(ORIGINALA, encoding="utf-8")  # Ensure proper encoding
-        #st.write("Detected Columns:", df.columns.tolist())  # Debug: Print column names
+        st.write("Detected Columns:", df.columns.tolist())  # Debug: Print column names
         return df
         
 # Function to generate Performance Improvement Plan (PIP)
