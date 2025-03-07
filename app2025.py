@@ -8,6 +8,7 @@ import os
 import openai
 from docx import Document
 from io import BytesIO
+import json
 
 # OpenAI API key setup (use secrets or environment variable for security)
 openai.api_key = st.secrets["openai"]["api_key"]
