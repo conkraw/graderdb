@@ -3115,7 +3115,7 @@ def main():
                 
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
+                df_original.to_csv(ORIGINALA, index=False)
 
                 # Load the dataset immediately
                 df = load_data()
@@ -3148,7 +3148,7 @@ def main():
 
                                 # Save updated dataframe back to mainfile.csv
                                 #df = df[['record_id','reflection']]
-                                df.to_csv("reflection.csv", index=False)
+                                df.to_csv("reflection.csv", index=False); st.dataframe(df)
                                 st.success("Reflection saved!")
 
                         # Move to the next student automatically **only if there are more students**
