@@ -150,7 +150,8 @@ def main():
                 observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
                 observed.to_csv('00 - observed_report.csv',index=False)
                 
-                COURSE = "Pediatric Clerkship"
+                #COURSE = "Pediatric Clerkship"
+                COURSE = "Pediatrics"
                 df_2 = df_2.loc[df_2['Course'] == COURSE]
                 df_2 = df_2.loc[:, df_2.columns != 'Course ID']
                 
