@@ -1991,7 +1991,8 @@ def main():
                 xf['distinct_count'] = xf.groupby(['email'])['email'].transform('count')
                 
                 xf.to_csv('OTFconvert.csv',index=False)
-                
+                st.dataframe(xf)
+
                 FILETOMAP = "OTFconvert.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
                 COLUMN = 'email'
