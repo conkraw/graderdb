@@ -1949,8 +1949,9 @@ def main():
                 df.to_csv(FILETOMAP,index=False)
                 
                 df = pd.read_csv('00 - originaloasis.csv')
-                
-                df = df.loc[df['Course'] == "Pediatric Clerkship"]
+                df = df.loc[df['Course'] == "Pediatrics"]
+
+                #df = df.loc[df['Course'] == "Pediatric Clerkship"]
                 
                 df = df.loc[:, df.columns != 'Course ID']
                 
@@ -1991,7 +1992,6 @@ def main():
                 xf['distinct_count'] = xf.groupby(['email'])['email'].transform('count')
                 
                 xf.to_csv('OTFconvert.csv',index=False)
-                st.dataframe(xf)
 
                 FILETOMAP = "OTFconvert.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
