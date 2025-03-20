@@ -72,7 +72,7 @@ def main():
     
     column_value_mapping = {
         "Clinical Assessment Form": {"column": "Evaluation", "value": "*Clinical Assessment of Student"},
-        "Clinical Encounter": {"column": "Checklist", "value": "Pediatric Case Logs"},
+        "Clinical Encounter": {"column": "Checklist", "value": "Pediatrics Case Logs"},
         "Observed Handoff": {"column": "Evaluation", "value": "*PEDS Handoff"},
         "Observed HP": {"column": "Evaluation", "value": "*PEDS History Taking & Physical Exam"},
         "Developmental Assessment": {"column": "SOCIAL/EMOTIONAL MILESTONES (choice=Calms down when spoken to or picked up)", "value": "Unchecked"},
