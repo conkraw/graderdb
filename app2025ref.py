@@ -3286,7 +3286,7 @@ def main():
                 df.to_csv("reflection.csv", index=False)
                 st.success("Processing complete!")
 
-                lg_data = generate_learning_goals_and_lgs(feedback)
+                #lg_data = generate_learning_goals_and_lgs(feedback)
                 #st.write("DEBUG: Learning goals data:", lg_data)
                 
                 # Provide a download button for the updated CSV.
