@@ -3200,15 +3200,13 @@ def main():
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
 
-                df_original_c = df_original.copy()
+                df_original_c = df_original.loc[df_original['all_feedback'] == "0 0 0 0"]
 
-                st.dataframe(df_original_c)
+                df_original_c.to_csv('no_feedback.csv',index=False)
 
                 df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
         
-                st.dataframe(df_original)
-
-                st.stop()
+                #st.stop()
                 #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
 
                 if "reflection" not in df_original.columns:
@@ -3255,7 +3253,10 @@ def main():
                                     df.at[st.session_state.student_index, "strengths_lg"] = "\n".join(lg_data.get("strengths_lg", []))
                                     df.at[st.session_state.student_index, "weaknesses_lg"] = "\n".join(lg_data.get("weaknesses_lg", []))
 
+                                df_nofeedback = pd.read_csv('no_feedback.csv')
+                                df = pd.concat([df,df_nofeedback])
                                 df.to_csv("reflection.csv", index=False)
+                                
                                 st.success("Reflection saved!")
 
                         # Move to the next student automatically **only if there are more students**
