@@ -3274,7 +3274,8 @@ def main():
                             # Provide Download Button
                             csv_data = df.to_csv(index=False)
                             st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
-
+                            time.sleep(10)
+                            
                             #csv_data = df_original.to_csv(index=False)
                             #st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
 
