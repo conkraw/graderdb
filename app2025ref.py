@@ -3262,8 +3262,8 @@ def main():
                         # Move to the next student automatically **only if there are more students**
                         st.session_state.student_index += 1
                         
-                        #if st.session_state.student_index < len(df):
-                        #    st.rerun()
+                        if st.session_state.student_index < len(df):
+                            st.experimental_rerun()
                         else:
                             st.success("All reflections have been generated!")
                             st.write("You can now download the updated dataset.")
