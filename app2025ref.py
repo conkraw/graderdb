@@ -3200,7 +3200,7 @@ def main():
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
 
-                df_original = df_original.loc[df_original['record_id'] == "aY25_9"].copy()
+                #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
@@ -3222,12 +3222,7 @@ def main():
                     # Process each student sequentially
                     if st.session_state.student_index < len(df):
                         student = df.iloc[st.session_state.student_index]
-
-                        if pd.isna(student.get("all_feedback")) or str(student["all_feedback"]).strip() == "":
-                            st.warning(f"Skipping student ID {student.get('record_id', 'N/A')} — no feedback available.")
-                            st.session_state.student_index += 1
-                            st.rerun()
-                    
+                
                         st.subheader(f"Processing Student Record ID: {student['record_id']}")
                         st.write(f"**Feedback:** {student['all_feedback']}")
                 
