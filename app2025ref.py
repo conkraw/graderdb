@@ -3206,7 +3206,7 @@ def main():
 
                 df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
         
-                #st.stop()
+                
                 #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
 
                 if "reflection" not in df_original.columns:
@@ -3214,7 +3214,7 @@ def main():
                 
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
+                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original); st.stop()
 
                 # Load the dataset immediately
                 df = load_data()
