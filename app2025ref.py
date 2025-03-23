@@ -80,6 +80,7 @@ def generate_learning_goals_and_lgs(all_feedback):
     
     If there are fewer than 3 items in any category, only include the available items.
     Ensure that each item is concise and to the point.
+    If the feedback provided is inadequate, provide a generic response. 
     """
     
     response = openai.ChatCompletion.create(
@@ -3262,7 +3263,7 @@ def main():
                         st.session_state.student_index += 1
                         
                         if st.session_state.student_index < len(df):
-                            st.experimental_rerun()
+                            st.rerun()
                         else:
                             st.success("All reflections have been generated!")
                             st.write("You can now download the updated dataset.")
