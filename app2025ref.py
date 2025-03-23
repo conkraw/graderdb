@@ -70,18 +70,18 @@ def generate_learning_goals_and_lgs(all_feedback):
     2. Identify up to 3 brief items that highlight the student's strengths.
     3. Identify up to 3 brief items that highlight the student's opportunities for improvement.
     
-    Provide the output in the following JSON format exactly:
-    
+    Provide ONLY the output in the following JSON format exactly (do not include any additional text or markdown formatting):
+
     {{
       "learning_goals": ["goal1", "goal2", "goal3"],
       "strengths_lg": ["strength1", "strength2", "strength3"],
       "weaknesses_lg": ["opportunity1", "opportunity2", "opportunity3"]
     }}
-    
+
     If there are fewer than 3 items in any category, only include the available items.
     Ensure that each item is concise and to the point.
 
-    If there is no or inadequate feedback, please use generic learning goals. 
+    If there is no or inadequate feedback, please use generic learning goals.
     """
     
     response = openai.ChatCompletion.create(
