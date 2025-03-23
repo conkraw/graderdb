@@ -50,7 +50,6 @@ def main():
     st.title("Grader Database Uploader")
 
     st.markdown("""
-### Need sample files?
 - [Clinical Assessment Form](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)
 - [Clinical Encounters](https://oasis.hersheymed.net/admin/course/experience_requirement/view_distribution_setup.html)
 - [Procedure Encounters](https://oasis.hersheymed.net/admin/course/experience_requirement/view_distribution_setup.html)
