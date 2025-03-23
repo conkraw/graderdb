@@ -173,10 +173,13 @@ def main():
                     return mapping.get(value, value)
 
                 df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
+
                 
                 observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed']
                 observed = observed.loc[(observed['Item'] != '[Ped] Health Systems Issue')&(observed['Item'] != '[Ped] Humanities Issue')]
                 observed.to_csv('00 - observed_report.csv',index=False)
+
+                st.dataframe(observed)
                 
                 COURSE = "Pediatric Clerkship"
                 df_2 = df_2.loc[df_2['Course'] == COURSE]
