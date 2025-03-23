@@ -3211,6 +3211,9 @@ def main():
 
                 df_original_c = df_original.loc[df_original['all_feedback'] == "0 0 0 0"]
                 df_original_c['reflection'] = ""
+                df_original_c['learning_goals'] = ""
+                df_original_c['strengths_lg'] = ""
+                df_original_c['weaknesses_lg'] = ""
 
                 df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
 
@@ -3245,6 +3248,9 @@ def main():
                 # Save the updated DataFrame to a CSV file.
                 df.to_csv("reflection.csv", index=False)
                 st.success("Processing complete!")
+
+                lg_data = generate_learning_goals_and_lgs(feedback)
+                st.write("DEBUG: Learning goals data:", lg_data)
                 
                 # Provide a download button for the updated CSV.
                 csv_data = df.to_csv(index=False)
