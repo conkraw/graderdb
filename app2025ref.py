@@ -80,6 +80,8 @@ def generate_learning_goals_and_lgs(all_feedback):
     
     If there are fewer than 3 items in any category, only include the available items.
     Ensure that each item is concise and to the point.
+
+    If there is no or inadequate feedback, please use generic learning goals. 
     """
     
     response = openai.ChatCompletion.create(
@@ -95,7 +97,14 @@ def generate_learning_goals_and_lgs(all_feedback):
     try:
         result_json = json.loads(result)
     except json.JSONDecodeError:
-        result_json = {"error": "Failed to parse JSON", "raw_output": result}
+        # Return a dictionary with the expected keys, even in error
+        result_json = {
+            "learning_goals": [],
+            "strengths_lg": [],
+            "weaknesses_lg": [],
+            "error": "Failed to parse JSON",
+            "raw_output": result
+        }
     return result_json
 
 # Function to handle Canvas Quiz filename extraction based on week number
