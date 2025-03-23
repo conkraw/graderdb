@@ -3200,7 +3200,7 @@ def main():
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
 
-                df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
+                #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
