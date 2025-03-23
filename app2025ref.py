@@ -3214,7 +3214,7 @@ def main():
                 
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original); st.stop()
+                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original); #st.stop()
 
                 # Load the dataset immediately
                 df = load_data()
