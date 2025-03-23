@@ -3214,64 +3214,78 @@ def main():
                 
                 # Save the cleaned dataframe to a CSV
                 
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original); #st.stop()
+                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
 
-                # Load the dataset immediately
-                df = load_data()
-                if df is not None:
-                    for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
-                        if col not in df.columns:
-                            df[col] = None 
-
-                    if "student_index" not in st.session_state:
-                        st.session_state.student_index = 0     
-                        
-                    # Process each student sequentially
+                if "df" not in st.session_state:
+                    df = load_data()
+                    if df is not None:
+                        # Ensure required columns exist
+                        for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
+                            if col not in df.columns:
+                                df[col] = None
+                    st.session_state.df = df
+                    st.session_state.student_index = 0
+                
+                df = st.session_state.df
+                
+                if df is None:
+                    st.error("Dataset could not be loaded.")
+                else:
+                    # Check if there are still student rows to process
                     if st.session_state.student_index < len(df):
                         student = df.iloc[st.session_state.student_index]
-                
                         st.subheader(f"Processing Student Record ID: {student['record_id']}")
                         st.write(f"**Feedback:** {student['all_feedback']}")
-                
-                        # Check if reflection already exists to prevent duplicate generation
-                        if pd.isna(student.get("reflection", None)):  # Check if 'reflection' column is empty
+                        
+                        # Only process if reflection is missing
+                        if pd.isna(student.get("reflection", None)):
                             with st.spinner("Generating PIP..."):
                                 pip_text = generate_pip(student["all_feedback"])
                                 st.write("### Performance Improvement Plan")
                                 st.write(pip_text)
                 
-                                # Save the reflection into the dataframe
-                                df.at[st.session_state.student_index, "reflection"] = pip_text
-                                
+                                # Update the reflection
+                                st.session_state.df.at[st.session_state.student_index, "reflection"] = pip_text
+                
                                 # Generate learning goals, strengths, and weaknesses
                                 lg_data = generate_learning_goals_and_lgs(student["all_feedback"])
                                 if "error" in lg_data:
                                     st.error("Error generating learning goals: " + lg_data.get("raw_output", ""))
                                 else:
-                                    # Save as newline-separated strings for clarity
-                                    df.at[st.session_state.student_index, "learning_goals"] = "\n".join(lg_data.get("learning_goals", []))
-                                    df.at[st.session_state.student_index, "strengths_lg"] = "\n".join(lg_data.get("strengths_lg", []))
-                                    df.at[st.session_state.student_index, "weaknesses_lg"] = "\n".join(lg_data.get("weaknesses_lg", []))
-
-                                df_nofeedback = pd.read_csv('no_feedback.csv')
-                                df = pd.concat([df,df_nofeedback])
-                                df.to_csv("reflection.csv", index=False)
+                                    st.session_state.df.at[st.session_state.student_index, "learning_goals"] = "\n".join(lg_data.get("learning_goals", []))
+                                    st.session_state.df.at[st.session_state.student_index, "strengths_lg"] = "\n".join(lg_data.get("strengths_lg", []))
+                                    st.session_state.df.at[st.session_state.student_index, "weaknesses_lg"] = "\n".join(lg_data.get("weaknesses_lg", []))
                                 
                                 st.success("Reflection saved!")
-                                
-                        # Move to the next student automatically **only if there are more students**
+                        
+                        # Move to the next student and rerun the app
                         st.session_state.student_index += 1
-                        
-                        if st.session_state.student_index < len(df):
-                            st.rerun()
-                        else:
-                            st.success("All reflections have been generated!")
-                            st.write("You can now download the updated dataset.")
-                        
-                            # Provide Download Button
-                            csv_data = df.to_csv(index=False)
-                            st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
-                            
+                        st.rerun()
+                
+                    else:
+                        # All student records processed.
+                        st.success("All reflections have been generated!")
+                        st.write("You can now download the updated dataset.")
+                
+                        # Load additional data once processing is complete.
+                        try:
+                            df_nofeedback = pd.read_csv('no_feedback.csv')
+                        except Exception as e:
+                            st.error("Error loading 'no_feedback.csv': " + str(e))
+                            df_nofeedback = pd.DataFrame()  # Fallback to empty DataFrame if not available
+                
+                        # Combine the processed df with the no-feedback dataset.
+                        final_df = pd.concat([df, df_nofeedback], ignore_index=True)
+                        final_df.to_csv("reflection.csv", index=False)
+                
+                        # Provide the download button
+                        csv_data = final_df.to_csv(index=False)
+                        st.download_button(
+                            label="Download Updated CSV",
+                            data=csv_data,
+                            file_name="reflection.csv",
+                            mime="text/csv"
+                        )
 
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
