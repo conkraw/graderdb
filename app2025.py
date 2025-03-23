@@ -72,6 +72,7 @@ def main():
     column_value_mapping = {
         "Clinical Assessment Form": {"column": "Evaluation", "value": "*Clinical Assessment of Student"},
         "Clinical Encounter": {"column": "Checklist", "value": "Pediatrics Case Logs"},
+        "Procedure Encounter": {"column": "Checklist", "value": "Pediatrics Procedure Logs"},
         "Observed Handoff": {"column": "Evaluation", "value": "*PEDS Handoff"},
         "Observed HP": {"column": "Evaluation", "value": "*PEDS History Taking & Physical Exam"},
         "Developmental Assessment": {"column": "SOCIAL/EMOTIONAL MILESTONES (choice=Calms down when spoken to or picked up)", "value": "Unchecked"},
@@ -124,6 +125,8 @@ def main():
 
                 df_2 = file_data.get("Clinical Assessment Form", None)
                 df_3 = file_data.get("Clinical Encounter", None)
+                df_3a = file_data.get("Procedure Encounter", None)
+                df_3 = pd.concat([df_3,df_3a])
                 df_4 = file_data.get("Observed Handoff", None)
                 df_5 = file_data.get("Observed HP", None)
                 df_6 = file_data.get("Developmental Assessment", None)
