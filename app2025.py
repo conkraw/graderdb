@@ -147,9 +147,35 @@ def main():
                 df_11.to_csv('00 - canvasquiz4.csv', index=False)
                 df_12.to_csv('00 - ptrackero.csv', index=False)
                 df_13.to_csv('00 - originalsdoh.csv', index=False)
+
+                #Observing: Shadowing
+                #Performing with indirect preceptor supervision: Data Collection and Medical Decision
+                #Performing with indirect preceptor supervision: Data Collection and Medical Decision
+                #Performing with direct preceptor supervision: Data Collection and Medical Decision Making
+                #Assisting: Data Collection" 
+
+                mapping = {"Observing: Shadowing": "Observed",
+                           "Performing with indirect preceptor supervision: Data Collection and Medical Decision": "Performed",
+                           "Performing with direct preceptor supervision: Data Collection and Medical Decision Making": "Performed",
+                           "Assisting: Data Collection": "Assisted"
+                          }
+
+                def determine_peds_level(row):
+                    # Check which column has a value (they are mutually exclusive)
+                    if pd.notnull(row['*Assisted or Above']):
+                        value = row['*Assisted or Above']
+                    elif pd.notnull(row['*Observed or Above']):
+                        value = row['*Observed or Above']
+                    else:
+                        return np.nan  # or another placeholder for missing data
+                    
+                    # Return the mapped value or the original if not found in the mapping dictionary
+                    return mapping.get(value, value)
+
+                df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
                 
-                observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]']
-                observed = observed.loc[(observed['Item'] != '*(Peds) Health Systems Encounter')&(observed['Item'] != '*(Peds) Humanities Encounter')]
+                observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed']
+                observed = observed.loc[(observed['Item'] != '[Ped] Health Systems Issue')&(observed['Item'] != '[Ped] Humanities Issue')]
                 observed.to_csv('00 - observed_report.csv',index=False)
                 
                 COURSE = "Pediatric Clerkship"
@@ -688,32 +714,32 @@ def main():
                 
                 # List of all items that should appear as columns
                 items = [
-                    '*(Peds) Health Supervision/Well Child Visit',
-                    '*(Peds) Common Newborn Conditions (Clinical Domains)',
-                    '*(Peds) Dermatologic Conditions (Clinical Domains)',
-                    '*(Peds) Gastro-intestinal (Clinical Domains)',
-                    '*(Peds) Behavior (Clinical Domains)',
-                    '*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ', 
-                    '*(Peds) Acute conditions (Clinical Domains)',
-                    '*(Peds) Other (Clinical Domains)',
-                    '*(Peds) Procedure Interpretations',
-                    '*(Peds) Health Systems Encounter',
-                    '*(Peds) Humanities Encounter'
+                    '[Ped] Health Supervision (Well Child Visit)',
+                    '[Ped] Common Newborn Conditions e.g. Jaundice, Rash, Colic/Crying, Spit-up/Vomitting/Reflux, Poor Weight Gain',
+                    '[Ped] Dermatologic System e.g. Rash, Pallor',
+                    '[Ped] Gastrointestinal Tract',
+                    '[Ped] Behavior e.g. Temper tantrums/aggressive behavior, ADHD, Developmental Delay, Autism Spectrum',
+                    '[Ped] Upper and Lower Respiratory Tract e.g. Dental Caries, Sore Throat, Cough, Shortness of breath, Wheezing', 
+                    '[Ped] Acute Conditions e.g. Abdominal Pain, Fever, Seizure, Shortness of breath, Wheezing',
+                    '[Ped] Other e.g. Obesity/ Metabolic Syndrome',
+                    '[PED Procedure] Test Interpretation,
+                    '[Ped] Health Systems Issue',
+                    '[Ped] Humanities Issue
                 ]
                 
                 # The mapping for renaming columns
                 rename_dict = {
-                    '*(Peds) Health Supervision/Well Child Visit': 'clindom_well_child',
-                    '*(Peds) Common Newborn Conditions (Clinical Domains)': 'clindom_commonnb',
-                    '*(Peds) Dermatologic Conditions (Clinical Domains)': 'clindom_derm',
-                    '*(Peds) Gastro-intestinal (Clinical Domains)': 'clindom_gi',
-                    '*(Peds) Behavior (Clinical Domains)': 'clindom_behavior',
-                    '*(Peds) Upper and Lower Respiratory Tract (Clinical Domains) ': 'clindom_upperandlowerrt',
-                    '*(Peds) Acute conditions (Clinical Domains)': 'clindom_acuteconditions',
-                    '*(Peds) Other (Clinical Domains)': 'clindom_other',
-                    '*(Peds) Procedure Interpretations': 'clindom_testinterpret',
-                    '*(Peds) Health Systems Encounter': 'clindom_healthsystems',
-                    '*(Peds) Humanities Encounter': 'clindom_humanities'
+                    '[Ped] Health Supervision (Well Child Visit)': 'clindom_well_child',
+                    '[Ped] Common Newborn Conditions e.g. Jaundice, Rash, Colic/Crying, Spit-up/Vomitting/Reflux, Poor Weight Gain': 'clindom_commonnb',
+                    '[Ped] Dermatologic System e.g. Rash, Pallor': 'clindom_derm',
+                    '[Ped] Gastrointestinal Tract': 'clindom_gi',
+                    '[Ped] Behavior e.g. Temper tantrums/aggressive behavior, ADHD, Developmental Delay, Autism Spectrum': 'clindom_behavior',
+                    '[Ped] Upper and Lower Respiratory Tract e.g. Dental Caries, Sore Throat, Cough, Shortness of breath, Wheezing': 'clindom_upperandlowerrt',
+                    '[Ped] Acute Conditions e.g. Abdominal Pain, Fever, Seizure, Shortness of breath, Wheezing': 'clindom_acuteconditions',
+                    '[Ped] Other e.g. Obesity/ Metabolic Syndrome': 'clindom_other',
+                    '[PED Procedure] Test Interpretation': 'clindom_testinterpret',
+                    '[Ped] Health Systems Issue': 'clindom_healthsystems',
+                    '[Ped] Humanities Issue': 'clindom_humanities'
                 }
                 
                 # Count occurrences of each unique 'Item' per 'Email' for all encounters
