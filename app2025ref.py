@@ -3258,7 +3258,7 @@ def main():
                                 df.to_csv("reflection.csv", index=False)
                                 
                                 st.success("Reflection saved!")
-
+                                st.dataframe(df)
                         # Move to the next student automatically **only if there are more students**
                         st.session_state.student_index += 1
                         
@@ -3268,16 +3268,10 @@ def main():
                             st.success("All reflections have been generated!")
                             st.write("You can now download the updated dataset.")
                         
-                            # Display DataFrame
-                            #st.dataframe(df.reset_index(drop=True))
-                        
                             # Provide Download Button
                             csv_data = df.to_csv(index=False)
                             st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
-                            time.sleep(10)
                             
-                            #csv_data = df_original.to_csv(index=False)
-                            #st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
 
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
