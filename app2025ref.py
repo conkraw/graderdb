@@ -3206,7 +3206,6 @@ def main():
 
                 df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
         
-                
                 #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
 
                 if "reflection" not in df_original.columns:
