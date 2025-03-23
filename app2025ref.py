@@ -12,6 +12,13 @@ import json
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+firebase_creds = st.secrets["firebase_service_account"].to_dict()
+if not firebase_admin._apps:
+    cred = credentials.Certificate(firebase_creds)
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
 def safe_check_and_add_record(record_id):
     try:
         return check_and_add_record(record_id)
