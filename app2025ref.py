@@ -3199,7 +3199,15 @@ def main():
                 df_original['datez'] = datetime.now().strftime('%m-%d-%Y')
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
+
+                df_original_c = df_original.copy
+
+                st.dataframe(df_original_c)
+
+                df_original = df_original[df_original.loc['all_feedback'] != "0 0 0 0"]
+        
                 st.dataframe(df_original)
+
                 st.stop()
                 #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
 
