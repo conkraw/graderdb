@@ -3214,8 +3214,9 @@ def main():
                 df_original_c['learning_goals'] = ""
                 df_original_c['strengths_lg'] = ""
                 df_original_c['weaknesses_lg'] = ""
+                df_original_c.to_csv('nofeedback.csv',index=False)
 
-                df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
+                df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]    
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
@@ -3246,6 +3247,8 @@ def main():
                         df.at[idx, "weaknesses_lg"] = "\n".join(lg_data["weaknesses_lg"])
                 
                 # Save the updated DataFrame to a CSV file.
+                df_nofeedback = pd.read_csv('nofeedback.csv')
+                df = pd.concat([df,df_nofeedback])
                 df.to_csv("reflection.csv", index=False)
                 st.success("Processing complete!")
 
