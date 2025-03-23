@@ -3222,9 +3222,12 @@ def main():
                     # Process each student sequentially
                     if st.session_state.student_index < len(df):
                         student = df.iloc[st.session_state.student_index]
+                        feedback = str(student.get("all_feedback", "")).strip()
 
-                        if pd.isna(student.get("all_feedback")) or str(student["all_feedback"]).strip() == "":
-                            st.warning(f"Skipping student ID {student.get('record_id', 'N/A')} — no feedback available.")
+                        
+
+                        if feedback == "" or set(feedback.split()) == {"0"}:
+                            st.warning(f"Skipping student ID {student.get('record_id', 'N/A')} — no valid feedback available.")
                             st.session_state.student_index += 1
                             st.rerun()
                     
