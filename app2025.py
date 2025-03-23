@@ -49,6 +49,22 @@ def main():
     
     st.title("Grader Database Uploader")
 
+    st.markdown("""
+### Need sample files?
+- [Clinical Assessment Form](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)
+- [Clinical Encounters](https://oasis.hersheymed.net/admin/course/experience_requirement/view_distribution_setup.html)
+- [Observed Handoff](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)
+- [Observed HP](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)
+- [Developmental Assessment Report](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)
+- [SDOH Report](https://oasis.hersheymed.net/admin/course/e_manage/student_performance/setup_analysis_report.html)
+- [NBME Exam](https://oasis.hersheymed.net/admin/course/gradebook/)
+- [CANVAS QUIZ 1](https://psu.instructure.com/courses/2391216/quizzes/5215346/statistics)
+- [CANVAS QUIZ 2](https://psu.instructure.com/courses/2391216/quizzes/5215347/statistics)
+- [CANVAS QUIZ 3](https://psu.instructure.com/courses/2391216/quizzes/5215343/statistics)
+- [CANVAS QUIZ 4](https://psu.instructure.com/courses/2391216/quizzes/5215345/statistics)
+- [PRECEPTOR TRACKER](https://oasis.hersheymed.net/admin/course/e_manage/manage_evaluators.html)
+""")
+
     uploaded_files = st.file_uploader("Upload Files (CSV or Excel)", type=["csv", "xlsx"], accept_multiple_files=True)
 
     file_data = {}
