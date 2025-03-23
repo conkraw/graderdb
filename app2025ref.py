@@ -3243,6 +3243,8 @@ def main():
 
                 df_original = df_original[~df_original["record_id"].apply(safe_check_and_add_record)]
 
+                st.dataframe(df_original)
+
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
                 
