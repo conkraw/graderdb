@@ -3253,7 +3253,7 @@ def main():
                 st.success("Processing complete!")
 
                 lg_data = generate_learning_goals_and_lgs(feedback)
-                st.write("DEBUG: Learning goals data:", lg_data)
+                #st.write("DEBUG: Learning goals data:", lg_data)
                 
                 # Provide a download button for the updated CSV.
                 csv_data = df.to_csv(index=False)
