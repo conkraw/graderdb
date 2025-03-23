@@ -3258,12 +3258,12 @@ def main():
                                 df.to_csv("reflection.csv", index=False)
                                 
                                 st.success("Reflection saved!")
-                                st.dataframe(df)
+                                
                         # Move to the next student automatically **only if there are more students**
                         st.session_state.student_index += 1
                         
-                        if st.session_state.student_index < len(df):
-                            st.rerun()
+                        #if st.session_state.student_index < len(df):
+                        #    st.rerun()
                         else:
                             st.success("All reflections have been generated!")
                             st.write("You can now download the updated dataset.")
