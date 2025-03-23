@@ -173,7 +173,10 @@ def main():
                     return mapping.get(value, value)
 
                 df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
-
+                
+                st.dataframe(df_3)
+                
+                df_3.to_csv('00 - export_results.csv',index=False)                 
                 
                 observed = df_3.loc[df_3['*Peds Level of Responsibility'] == 'Observed']
                 observed = observed.loc[(observed['Item'] != '[Ped] Health Systems Issue')&(observed['Item'] != '[Ped] Humanities Issue')]
