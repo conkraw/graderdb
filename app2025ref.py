@@ -3204,7 +3204,7 @@ def main():
 
                 st.dataframe(df_original_c)
 
-                df_original = df_original[df_original.loc['all_feedback'] != "0 0 0 0"]
+                df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
         
                 st.dataframe(df_original)
 
