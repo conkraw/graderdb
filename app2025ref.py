@@ -3229,8 +3229,12 @@ def main():
                         if feedback == "" or set(feedback.split()) == {"0"}:
                             st.warning(f"Skipping student ID {student.get('record_id', 'N/A')} — no valid feedback available.")
                             st.session_state.student_index += 1
-                            st.rerun()
-                    
+                            if not DEBUG:
+                                st.rerun()  # Use st.rerun() if you're on an older Streamlit version
+                            else:
+                                st.write("DEBUG: automatic rerun disabled. Please click 'Next Student' to continue.")
+                                st.stop()  
+                                
                         st.subheader(f"Processing Student Record ID: {student['record_id']}")
                         st.write(f"**Feedback:** {student['all_feedback']}")
                 
