@@ -3200,7 +3200,10 @@ def main():
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
 
-                #df_original = df_original.loc[df_original['record_id'] == "aY24_6"].copy()
+                df_original_c = df_original.loc[df_original['all_feedback'] == "0 0 0 0"]
+                df_original_c['reflection'] = ""
+
+                df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
@@ -3211,63 +3214,37 @@ def main():
 
                 # Load the dataset immediately
                 df = load_data()
-                if df is not None:
-                    for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
-                        if col not in df.columns:
-                            df[col] = None 
 
-                    if "student_index" not in st.session_state:
-                        st.session_state.student_index = 0     
-                        
-                    # Process each student sequentially
-                    if st.session_state.student_index < len(df):
-                        student = df.iloc[st.session_state.student_index]
+                # Ensure the required columns exist.
+                for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
+                    if col not in df.columns:
+                        df[col] = None
                 
-                        st.subheader(f"Processing Student Record ID: {student['record_id']}")
-                        st.write(f"**Feedback:** {student['all_feedback']}")
+                with st.spinner("Processing the dataset..."):
+                    for idx, row in df.iterrows():
+                        feedback = row["all_feedback"]
+                        # Generate the reflection.
+                        pip_text = generate_pip(feedback)
+                        df.at[idx, "reflection"] = pip_text
                 
-                        # Check if reflection already exists to prevent duplicate generation
-                        if pd.isna(student.get("reflection", None)):  # Check if 'reflection' column is empty
-                            with st.spinner("Generating PIP..."):
-                                pip_text = generate_pip(student["all_feedback"])
-                                st.write("### Performance Improvement Plan")
-                                st.write(pip_text)
+                        # Generate learning goals, strengths, and weaknesses.
+                        lg_data = generate_learning_goals_and_lgs(feedback)
+                        df.at[idx, "learning_goals"] = "\n".join(lg_data["learning_goals"])
+                        df.at[idx, "strengths_lg"] = "\n".join(lg_data["strengths_lg"])
+                        df.at[idx, "weaknesses_lg"] = "\n".join(lg_data["weaknesses_lg"])
                 
-                                # Save the reflection into the dataframe
-                                df.at[st.session_state.student_index, "reflection"] = pip_text
-                                
-                                # Generate learning goals, strengths, and weaknesses
-                                lg_data = generate_learning_goals_and_lgs(student["all_feedback"])
-                                if "error" in lg_data:
-                                    st.error("Error generating learning goals: " + lg_data.get("raw_output", ""))
-                                else:
-                                    # Save as newline-separated strings for clarity
-                                    df.at[st.session_state.student_index, "learning_goals"] = "\n".join(lg_data.get("learning_goals", []))
-                                    df.at[st.session_state.student_index, "strengths_lg"] = "\n".join(lg_data.get("strengths_lg", []))
-                                    df.at[st.session_state.student_index, "weaknesses_lg"] = "\n".join(lg_data.get("weaknesses_lg", []))
-
-                                df.to_csv("reflection.csv", index=False)
-                                st.success("Reflection saved!")
-
-                        # Move to the next student automatically **only if there are more students**
-                        st.session_state.student_index += 1
-                        
-                        if st.session_state.student_index < len(df):
-                            st.rerun()
-                        else:
-                            st.success("All reflections have been generated!")
-                            st.write("You can now download the updated dataset.")
-                        
-                            # Display DataFrame
-                            #st.dataframe(df.reset_index(drop=True))
-                        
-                            # Provide Download Button
-                            csv_data = df.to_csv(index=False)
-                            st.download_button(label="Download Updated CSV",data=csv_data,file_name="reflection.csv",mime="text/csv")
-
-                            #csv_data = df_original.to_csv(index=False)
-                            #st.download_button(label="Download Modified CSV",data=csv_data,file_name="mainfile_for_upload.csv",mime="text/csv")
-
+                # Save the updated DataFrame to a CSV file.
+                df.to_csv("reflection.csv", index=False)
+                st.success("Processing complete!")
+                
+                # Provide a download button for the updated CSV.
+                csv_data = df.to_csv(index=False)
+                st.download_button(
+                    label="Download Updated CSV",
+                    data=csv_data,
+                    file_name="reflection.csv",
+                    mime="text/csv"
+                )
         else:
             st.warning("Some categories are missing. Please ensure all required files are uploaded.")
     else:
