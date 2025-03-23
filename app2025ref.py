@@ -3228,7 +3228,7 @@ def main():
                 if pd.isna(student.get("all_feedback")) or str(student["all_feedback"]).strip() == "":
                     st.warning(f"Skipping student ID {student.get('record_id', 'N/A')} — no feedback available.")
                     st.session_state.student_index += 1
-                    st.experimental_rerun()  # or st.rerun() if using an older version
+                    st.rerun()  # or st.rerun() if using an older version
                 else:
                     st.subheader(f"Processing Student Record ID: {student['record_id']}")
                     st.write(f"**Feedback:** {student['all_feedback']}")
