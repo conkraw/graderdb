@@ -714,7 +714,7 @@ def main():
                 import datetime
                 
                 df = pd.read_csv('00 - export_results.csv') 
-                date = '2024-03-11 00:00:00' 
+                date = '2025-03-17 00:00:00' 
                 df['Start Date'] = pd.to_datetime(df["Start Date"])
                 df = df[df['Start Date'] >= date]
                 df.to_csv('00 - export_results.csv',index=False)
