@@ -9,6 +9,29 @@ import openai
 from docx import Document
 from io import BytesIO
 import json
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+def safe_check_and_add_record(record_id):
+    try:
+        return check_and_add_record(record_id)
+    except Exception as e:
+        st.error(f"Error processing record {record_id}: {e}")
+        return True  # You might choose to exclude this record or handle it differently
+
+def check_and_add_record(record_id):
+    # Ensure the record_id is a string
+    record_id_str = str(record_id)
+    doc_ref = db.collection("reflection_records").document(record_id_str)
+    
+    # If the record does not exist, add it
+    if not doc_ref.get().exists:
+        # Optionally, you can add additional data (like a timestamp) in the document
+        doc_ref.set({"processed": True})
+        return False  # Indicates the record was not previously processed
+    else:
+        return True  # Indicates the record already exists
+        
 
 # OpenAI API key setup (use secrets or environment variable for security)
 openai.api_key = st.secrets["openai"]["api_key"]
@@ -3216,7 +3239,9 @@ def main():
                 df_original_c['weaknesses_lg'] = ""
                 df_original_c.to_csv('nofeedback.csv',index=False)
 
-                df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]    
+                df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
+
+                df_original = df_original[~df_original["record_id"].apply(safe_check_and_add_record)]
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
