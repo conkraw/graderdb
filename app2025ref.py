@@ -3200,7 +3200,7 @@ def main():
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
 
-                df_original_c = df_original.copy
+                df_original_c = df_original.copy()
 
                 st.dataframe(df_original_c)
 
