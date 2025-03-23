@@ -10,6 +10,8 @@ from docx import Document
 from io import BytesIO
 import json
 
+DEBUG = True  # or False when you want automatic reruns
+
 # OpenAI API key setup (use secrets or environment variable for security)
 openai.api_key = st.secrets["openai"]["api_key"]
 
