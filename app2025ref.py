@@ -1210,13 +1210,17 @@ def main():
                 df.to_csv('observedhp.csv',index=False)
 
                 # Select relevant columns and rename them while merging
+                # Select relevant columns and rename them while merging
                 hx_c = df[['Student Email', '4 Multiple Choice Label', '5 Answer text']].copy()
-                hx_c["hx_comments"] = hx_c["4 Multiple Choice Label"] + "; " + hx_c["5 Answer text"]
-                hx_c = hx_c[['Student Email', 'hx_comments']]  # Keep only relevant columns
+                hx_c[['4 Multiple Choice Label', '5 Answer text']] = hx_c[['4 Multiple Choice Label', '5 Answer text']].fillna('').astype(str)
+                hx_c["hx_comments"] = hx_c.apply(combine_comments, axis=1)
+                hx_c = hx_c[['Student Email', 'hx_comments']]
                 
                 pe_c = df[['Student Email', '8 Multiple Choice Label', '9 Answer text']].copy()
+                pe_c[['8 Multiple Choice Label', '9 Answer text']] = pe_c[['8 Multiple Choice Label', '9 Answer text']].fillna('').astype(str)
                 pe_c["pe_comments"] = pe_c["8 Multiple Choice Label"] + "; " + pe_c["9 Answer text"]
-                pe_c = pe_c[['Student Email', 'pe_comments']]  # Keep only relevant columns
+                pe_c = pe_c[['Student Email', 'pe_comments']]
+        
                 
                 # Merge both dataframes on "Student Email"
                 merged_df = pd.merge(hx_c, pe_c, on="Student Email", how="outer")
