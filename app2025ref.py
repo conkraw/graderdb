@@ -11,6 +11,8 @@ from io import BytesIO
 import json
 import firebase_admin
 from firebase_admin import credentials, firestore
+import firebase_admin
+from firebase_admin import credentials
 
 firebase_creds = st.secrets["firebase_service_account"].to_dict()
 if not firebase_admin._apps:
