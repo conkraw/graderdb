@@ -254,17 +254,6 @@ def main():
                     else:
                         st.warning(f"File '{uploaded_file.name}' for {quiz_value} already processed.")
 
-            default_data = {"Observed Handoff": pd.DataFrame([{'Course': 'Pediatric Clerkship','Student Email': None,'1 Multiple Choice Value': 0,'2 Multiple Choice Value': 0,'4 Multiple Choice Label': None,'5 Answer text': None}])}
-    
-            for category in column_value_mapping.keys():
-                if category not in file_data:
-                    if category in default_data:
-                        file_data[category] = default_data[category]
-                        st.warning(f"No file found for '{category}'. A default dataset has been created.")
-                    else:
-                        file_data[category] = pd.DataFrame()
-                        st.warning(f"No file found for '{category}'. An empty dataset has been created.")
-                    
         # After processing, check if all required categories are assigned DataFrames
         if all(value is not None for value in file_data.values()):
             if st.button("Next"):
