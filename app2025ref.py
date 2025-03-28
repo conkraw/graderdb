@@ -1736,7 +1736,7 @@ def main():
                 fixed_columns = ['email_2', 'score']
 
                 # Define a regex that matches file IDs of interest; for example, 90165434, 90165435, ...
-                regex_pattern = r'^(96333117|96333154|96333187|96333196|96333106)'
+                regex_pattern = r'^(96333507|96333583|96333584|96333594|96333707)'
 
                 # Filter columns that start with any of these file IDs
                 file_columns = df.filter(regex=regex_pattern).columns.tolist()
@@ -1759,20 +1759,20 @@ def main():
 
                 # Define the correct answers for each question
                 correct_answers = {
-                    '90165434': "Indicate that there may be a risk for toxicity in genetically susceptible individuals. Provide anticipatory guidance and follow-up lead levels at recommended intervals.",
-                    '90165435': "Reassure the family that although the paint chip may contain a large amount of lead, only a very small amount will be absorbed.",
-                    '90165436': "Repeat lead level with a venous sample.",
-                    '90165437': "24 months",
-                    '90165438': "18 months"
+                    '96333507': "Deficiency of Factors II, VII, IX, and X",
+                    '96333583': "Transposition of the Great Arteries (TGA)",
+                    '96333584': "Administer a water deprivation test",
+                    '96333594': "Administer IV Fluids and Correct Electrolyte Abnormalities",
+                    '96333707': "Subglottic Hemangioma"
                 }
 
                 # Define the label to assign if a question is wrong
                 wrong_labels = {
-                    '90165434': 'q2a',
-                    '90165435': 'q2b',
-                    '90165436': 'q2c',
-                    '90165437': 'q2d',
-                    '90165438': 'q2e'
+                    '96333507': 'q2e',
+                    '96333583': 'q2d',
+                    '96333584': 'q2c',
+                    '96333594': 'q2b',
+                    '96333707': 'q2a'
                 }
 
                 def check_wrong(row):
