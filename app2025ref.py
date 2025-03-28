@@ -254,6 +254,17 @@ def main():
                     else:
                         st.warning(f"File '{uploaded_file.name}' for {quiz_value} already processed.")
 
+            default_data = {"Observed Handoff": pd.DataFrame([{'Course': 'Pediatric Clerkship','Student Email': None,'1 Multiple Choice Value': 0,'2 Multiple Choice Value': 0,'4 Multiple Choice Label': None,'5 Answer text': None}])}
+    
+            for category in column_value_mapping.keys():
+                if category not in file_data:
+                    if category in default_data:
+                        file_data[category] = default_data[category]
+                        st.warning(f"No file found for '{category}'. A default dataset has been created.")
+                    else:
+                        file_data[category] = pd.DataFrame()
+                        st.warning(f"No file found for '{category}'. An empty dataset has been created.")
+                    
         # After processing, check if all required categories are assigned DataFrames
         if all(value is not None for value in file_data.values()):
             if st.button("Next"):
@@ -280,12 +291,7 @@ def main():
                 df_3a = file_data.get("Procedure Encounter", None)
                 df_3 = pd.concat([df_3,df_3a])
                 
-                #df_4 = file_data.get("Observed Handoff", None)
-                default_row = {'Course': 'Pediatric Clerkship', 'Student Email': None, '1 Multiple Choice Value': 0, '2 Multiple Choice Value': 0, '4 Multiple Choice Label': None, '5 Answer text': None}
-                df_4 = file_data.get("Observed Handoff")
-                if df_4 is None:
-                    df_4 = pd.DataFrame([default_row])
-
+                df_4 = file_data.get("Observed Handoff", None)
                 df_5 = file_data.get("Observed HP", None)
                 df_6 = file_data.get("Developmental Assessment", None)
                 df_7 = file_data.get("NBME Exam", None)
