@@ -280,7 +280,12 @@ def main():
                 df_3a = file_data.get("Procedure Encounter", None)
                 df_3 = pd.concat([df_3,df_3a])
                 
-                df_4 = file_data.get("Observed Handoff", None)
+                #df_4 = file_data.get("Observed Handoff", None)
+                default_row = {'Course': 'Pediatric Clerkship', 'Student Email': None, '1 Multiple Choice Value': 0, '2 Multiple Choice Value': 0, '4 Multiple Choice Label': None, '5 Answer text': None}
+                df_4 = file_data.get("Observed Handoff")
+                if df_4 is None:
+                    df_4 = pd.DataFrame([default_row])
+
                 df_5 = file_data.get("Observed HP", None)
                 df_6 = file_data.get("Developmental Assessment", None)
                 df_7 = file_data.get("NBME Exam", None)
