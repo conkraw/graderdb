@@ -3264,9 +3264,6 @@ def main():
                 
                 df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
 
-                
-                st.stop()
-
                 # Load the dataset immediately
                 df = load_data()
 
@@ -3290,12 +3287,12 @@ def main():
                 
                 # Save the updated DataFrame to a CSV file.
                 df_nofeedback = pd.read_csv('nofeedback.csv')
+                st.dataframe(df); st.dataframe(df_nofeedback)
                 df = pd.concat([df,df_nofeedback])
                 df.to_csv("reflection.csv", index=False)
                 st.success("Processing complete!")
+                                
 
-                #lg_data = generate_learning_goals_and_lgs(feedback)
-                #st.write("DEBUG: Learning goals data:", lg_data)
                 
                 # Provide a download button for the updated CSV.
                 csv_data = df.to_csv(index=False)
