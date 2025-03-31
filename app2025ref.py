@@ -1777,27 +1777,29 @@ def main():
                     '96333707': 'q2a'
                 }
 
-                def check_wrong(row):
+                def check_wrong_and_choice(row):
                     wrong = []
+                    chosen_answers = []
                     for key, correct_ans in correct_answers.items():
-                        # Find the column for this file ID
+                        # Find the corresponding column for the current question key
                         col_candidates = [col for col in df.columns if col.startswith(key)]
                         if col_candidates:
                             col = col_candidates[0]
-                            # Compare student's response (as string) to the correct answer
-                            if str(row[col]).strip() != correct_ans.strip():
+                            student_answer = str(row[col]).strip()
+                            if student_answer != correct_ans.strip():
                                 wrong.append(wrong_labels[key])
-                    # Decide how to label if multiple questions are wrong
+                                chosen_answers.append(student_answer)
                     if len(wrong) == 1:
-                        return wrong[0]
+                        return pd.Series([wrong[0], chosen_answers[0]])
                     elif len(wrong) > 1:
-                        return np.random.choice(wrong)
+                        idx = np.random.choice(len(wrong))
+                        return pd.Series([wrong[idx], chosen_answers[idx]])
                     else:
-                        # If no questions are wrong, return "q2cor" instead of an empty string
-                        return "q2cor"
-
-                # Create the 'quiz_2_wrong' column
-                df['quiz_2_wrong'] = df.apply(check_wrong, axis=1)
+                        # No wrong answers: you can choose what to display in q2_choice (here, we'll set it to None)
+                        return pd.Series(["q2cor", None])
+                
+                # Apply the function to create both new columns at once
+                df[['quiz_2_wrong', 'q2_choice']] = df.apply(check_wrong_and_choice, axis=1)
 
                 # ---------------------------------------------------------------------------------
                 # END: Added code
