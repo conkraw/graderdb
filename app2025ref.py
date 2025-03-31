@@ -3301,7 +3301,7 @@ def main():
 
                 df_final = pd.concat([df_processed, df_existing, df_nofeedback])
                 
-                df.to_csv("reflection.csv", index=False)
+                df_final.to_csv("reflection.csv", index=False)
                 st.dataframe(df_final)
                 st.success("Processing complete!")
                                 
