@@ -3257,16 +3257,15 @@ def main():
                 
                 df_original = df_original[~df_original["record_id"].apply(safe_check_and_add_record)]
 
-                st.dataframe(df_original)
-
-                st.stop() 
-
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
                 
                 # Save the cleaned dataframe to a CSV
                 
                 df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
+
+                
+                st.stop()
 
                 # Load the dataset immediately
                 df = load_data()
