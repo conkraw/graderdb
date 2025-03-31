@@ -3282,7 +3282,7 @@ def main():
                     if col not in df.columns:
                         df_processed[col] = None
 
-                st.stop()
+
                 with st.spinner("Processing the new records..."):
                     for idx, row in df_processed.iterrows():
                         feedback = row["all_feedback"]
