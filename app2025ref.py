@@ -1800,7 +1800,8 @@ def main():
                 
                 # Apply the function to create both new columns at once
                 df[['quiz_2_wrong', 'q2_choice']] = df.apply(check_wrong_and_choice, axis=1)
-
+                st.dataframe(df)
+                st.stop()
                 # ---------------------------------------------------------------------------------
                 # END: Added code
                 # ---------------------------------------------------------------------------------
