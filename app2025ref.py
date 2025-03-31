@@ -1800,14 +1800,14 @@ def main():
                 
                 # Apply the function to create both new columns at once
                 df[['quiz_2_wrong', 'q2_choice']] = df.apply(check_wrong_and_choice, axis=1)
-                st.dataframe(df)
-                st.stop()
+                
                 # ---------------------------------------------------------------------------------
                 # END: Added code
                 # ---------------------------------------------------------------------------------
 
                 df.to_csv('x10 - canvasquiz2.csv', index=False)
 
+                
                 
                 FILETOMAP = "x10 - canvasquiz2.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
@@ -1841,7 +1841,7 @@ def main():
                 
                 df2 = pd.read_csv(FILETOMAP,dtype=str)
                 
-                df3 = df2[['record_id','quiz2','quiz_2_wrong']]
+                df3 = df2[['record_id','quiz2','quiz_2_wrong','q2_choice']]
                 
                 df3.to_csv(FILETOMAP,index=False)
                 
