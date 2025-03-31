@@ -3242,9 +3242,6 @@ def main():
                     if df_original[col].dtype in ['float64', 'int64'] and col not in no_fill_columns:
                         df_original[col] = df_original[col].apply(lambda x: int(x) if x == int(x) else x)
 
-                #today_date = datetime.now().strftime('%m-%d-%Y')
-                #df_original['datez'] = today_date
-
                 df_original['datez'] = datetime.now().strftime('%m-%d-%Y')
 
                 df_original["all_feedback"] = df_original[["weaknesses", "hx_comments", "pe_comments", "ho_comments"]].apply(lambda x: " ".join(x.dropna().astype(str)), axis=1)
@@ -3257,42 +3254,54 @@ def main():
                 df_original_c.to_csv('nofeedback.csv',index=False)
 
                 df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
-                
-                df_original = df_original[~df_original["record_id"].apply(safe_check_and_add_record)]
+
+                # Instead of filtering out, mark which records need processing
+                df_original["needs_processing"] = df_original["record_id"].apply(lambda rid: not safe_check_and_add_record(rid))
+
+                # Separate new and already processed records
+                df_new = df_original[df_original["needs_processing"]].copy()
+                df_existing = df_original[~df_original["needs_processing"]].copy()
+
+                # Remove the flag column if not needed further
+                df_new.drop("needs_processing", axis=1, inplace=True)
+                df_existing.drop("needs_processing", axis=1, inplace=True)
+    
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
                 
-                # Save the cleaned dataframe to a CSV
-                
-                df_original.to_csv(ORIGINALA, index=False); st.dataframe(df_original)
+                # Save the new records to CSV (or update your data source)
+                df_new.to_csv(ORIGINALA, index=False)
+                st.dataframe(df_new)
 
                 # Load the dataset immediately
-                df = load_data()
+                df_processed = load_data()
 
                 # Ensure the required columns exist.
                 for col in ["reflection", "learning_goals", "strengths_lg", "weaknesses_lg"]:
                     if col not in df.columns:
-                        df[col] = None
+                        df_processed[col] = None
                 
-                with st.spinner("Processing the dataset..."):
-                    for idx, row in df.iterrows():
+                with st.spinner("Processing the new records..."):
+                    for idx, row in df_processed.iterrows():
                         feedback = row["all_feedback"]
                         # Generate the reflection.
                         pip_text = generate_pip(feedback)
-                        df.at[idx, "reflection"] = pip_text
+                        df_processed.at[idx, "reflection"] = pip_text
                 
                         # Generate learning goals, strengths, and weaknesses.
                         lg_data = generate_learning_goals_and_lgs(feedback)
-                        df.at[idx, "learning_goals"] = "\n".join(lg_data["learning_goals"])
-                        df.at[idx, "strengths_lg"] = "\n".join(lg_data["strengths_lg"])
-                        df.at[idx, "weaknesses_lg"] = "\n".join(lg_data["weaknesses_lg"])
+                        df_processed.at[idx, "learning_goals"] = "\n".join(lg_data["learning_goals"])
+                        df_processed.at[idx, "strengths_lg"] = "\n".join(lg_data["strengths_lg"])
+                        df_processed.at[idx, "weaknesses_lg"] = "\n".join(lg_data["weaknesses_lg"])
                 
                 # Save the updated DataFrame to a CSV file.
                 df_nofeedback = pd.read_csv('nofeedback.csv')
-                st.dataframe(df); st.dataframe(df_nofeedback)
-                df = pd.concat([df,df_nofeedback])
+
+                df_final = pd.concat([df_processed, df_existing, df_nofeedback])
+                
                 df.to_csv("reflection.csv", index=False)
+                st.dataframe(df_final)
                 st.success("Processing complete!")
                                 
 
