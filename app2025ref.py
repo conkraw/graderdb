@@ -3304,11 +3304,13 @@ def main():
                 df_final.to_csv("reflection.csv", index=False)
                 st.dataframe(df_final)
                 st.success("Processing complete!")
+
+        
                                 
 
                 
                 # Provide a download button for the updated CSV.
-                csv_data = df.to_csv(index=False)
+                csv_data = df_final.to_csv(index=False)
                 st.download_button(
                     label="Download Updated CSV",
                     data=csv_data,
