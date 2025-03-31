@@ -3215,7 +3215,6 @@ def main():
                 # Step 6: Save the modified dataframe back to the original file
                 df_original.to_csv(ORIGINALA, index=False)
         
-        
                 import pandas as pd
                 import numpy as np
                 from datetime import datetime
@@ -3255,10 +3254,12 @@ def main():
                 df_original_c.to_csv('nofeedback.csv',index=False)
 
                 df_original = df_original.loc[df_original['all_feedback'] != "0 0 0 0"]
-
+                
                 df_original = df_original[~df_original["record_id"].apply(safe_check_and_add_record)]
 
                 st.dataframe(df_original)
+
+                st.stop() 
 
                 if "reflection" not in df_original.columns:
                     df_original["reflection"] = None
