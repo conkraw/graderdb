@@ -176,6 +176,7 @@ def main():
                 mapping = {"Observing: Shadowing": "Observed",
                            "Performing with indirect preceptor supervision: Data Collection and Medical Decision Making": "Performed",
                            "Performing with direct preceptor supervision: Data Collection and Medical Decision Making": "Performed",
+                           "Performing with indirect preceptor supervision: Data Collection and Medical Decision": "Performed",
                            "Assisting: Data Collection": "Assisted"
                           }
 
