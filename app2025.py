@@ -781,7 +781,7 @@ def main():
                 performed_counts = df[df['*Peds Level of Responsibility'].isin(['Performed', 'Assisted'])].groupby('Email').size()
                 
                 # Count the number of "Observed" encounters
-                observed_counts = df[df['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]'].groupby('Email').size()
+                observed_counts = df[df['*Peds Level of Responsibility'] == 'Observed'].groupby('Email').size()
                 
                 # Merge the counts into the item_counts dataframe
                 item_counts['performed'] = item_counts.index.map(performed_counts).fillna(0).astype(int)
