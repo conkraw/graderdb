@@ -194,7 +194,6 @@ def main():
                 df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
                 
                 st.dataframe(df_3)
-                st.stop()
                 
                 df_3.to_csv('00 - export_results.csv',index=False)                 
                 
