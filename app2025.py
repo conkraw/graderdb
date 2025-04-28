@@ -180,17 +180,22 @@ def main():
                            "Assisting: Data Collection": "Assisted"
                           }
 
-                def determine_peds_level(row):
-                    # Check which column has a value (they are mutually exclusive)
-                    if pd.notnull(row['*Assisted or Above']):
-                        value = row['*Assisted or Above']
-                    elif pd.notnull(row['*Observed or Above']):
-                        value = row['*Observed or Above']
-                    else:
-                        return np.nan  # or another placeholder for missing data
-                    
-                    # Return the mapped value or the original if not found in the mapping dictionary
-                    return mapping.get(value, value)
+                assisted_cols = [c for c in df_3.columns if c.startswith('*Assisted or Above')]
+                observed_cols = [c for c in df_3.columns if c.startswith('*Observed or Above')]
+                
+                
+                def determine_peds_level(row, mapping):
+                    # try every “Assisted or Above” column
+                    for col in assisted_cols:
+                        if pd.notnull(row[col]):
+                            return mapping.get(row[col], row[col])
+                    # then every “Observed or Above” column
+                    for col in observed_cols:
+                        if pd.notnull(row[col]):
+                            return mapping.get(row[col], row[col])
+                    # nothing found
+                    return np.nan
+
 
                 df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
                 
