@@ -196,9 +196,7 @@ def main():
                     # nothing found
                     return np.nan
                 
-                st.dataframe(df_3)
-                st.stop()
-                df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
+                df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1, args=(mapping,))
                 
                 st.dataframe(df_3)
                 
