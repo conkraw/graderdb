@@ -195,8 +195,9 @@ def main():
                             return mapping.get(row[col], row[col])
                     # nothing found
                     return np.nan
-
-
+                
+                st.dataframe(df_3)
+                st.stop()
                 df_3["*Peds Level of Responsibility"] = df_3.apply(determine_peds_level, axis=1)
                 
                 st.dataframe(df_3)
