@@ -805,21 +805,28 @@ def main():
                 
                 # Find the maximum 'Time entered' for each email
                 max_time = df.groupby('Email')['Time entered'].max().reset_index()
-                
-                # Rename the 'Time entered' column to 'max_time_entered'
                 max_time = max_time.rename(columns={'Time entered': 'max_time_entered'})
                 
-                # Merge the 'max_time_entered' back into the item_counts dataframe
-                item_counts = pd.merge(item_counts, max_time, on='Email', how='left')
+                # Find the minimum 'Time entered' for each email
+                min_time = df.groupby('Email')['Time entered'].min().reset_index()
+                min_time = min_time.rename(columns={'Time entered': 'min_time_entered'})
                 
-                # Create 'submitted_ce' column based on the max 'Time entered' column
+                # Merge both max and min time into item_counts
+                item_counts = df[['Email']].drop_duplicates()
+                item_counts = pd.merge(item_counts, max_time, on='Email', how='left')
+                item_counts = pd.merge(item_counts, min_time, on='Email', how='left')
+                
+                # Create 'submitted_ce' column based on the max 'Time entered'
                 item_counts['submitted_ce'] = item_counts['max_time_entered'].dt.strftime('%m-%d-%Y 23:59')
                 
-                # Drop the 'max_time_entered' column after creating 'submitted_ce'
-                item_counts = item_counts.drop(columns=['max_time_entered'])
+                # Create 'submitted_ce_min' column based on the min 'Time entered'
+                item_counts['submitted_ce_min'] = item_counts['min_time_entered'].dt.strftime('%m-%d-%Y 23:59')
                 
-                # Reset index to match the original DataFrame structure
-                item_counts.reset_index(inplace=False)
+                # Drop the unnecessary columns
+                item_counts = item_counts.drop(columns=['max_time_entered', 'min_time_entered'])
+                
+                # Reset index
+                item_counts.reset_index(drop=True, inplace=True)
         
                 item_counts.to_csv('x01 - clinical_domains.csv',index=False)
         
