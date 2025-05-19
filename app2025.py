@@ -829,6 +829,8 @@ def main():
                 item_counts.reset_index(drop=True, inplace=True)
         
                 item_counts.to_csv('x01 - clinical_domains.csv',index=False)
+
+                st.dataframe(item_counts)
         
                 FILETOMAP = "x01 - clinical_domains.csv"
                 RECORDIDMAPPER = 'recordidmapper.csv'
