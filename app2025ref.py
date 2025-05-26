@@ -921,16 +921,12 @@ def main():
                 performed_counts = df[df['*Peds Level of Responsibility'].isin(['Performed', 'Assisted'])].groupby('Email').size()
                 
                 # Count the number of "Observed" encounters
-                observed_counts = df[df['*Peds Level of Responsibility'] == 'Observed [Please briefly describe the experience to help us determine why students were limited to only observing during this encounter]'].groupby('Email').size()
+                observed_counts = df[df['*Peds Level of Responsibility'] == 'Observed'].groupby('Email').size()
                 
                 # Merge the counts into the item_counts dataframe
                 item_counts['performed'] = item_counts.index.map(performed_counts).fillna(0).astype(int)
                 item_counts['observed'] = item_counts.index.map(observed_counts).fillna(0).astype(int)
                 
-                # Convert 'Time entered' to datetime format
-                #df['Time entered'] = pd.to_datetime(df['Time entered'], format='%m/%d/%Y %I:%M:%S %p')
-                
-                #df['Time entered'] = pd.to_datetime(df['Time entered'], format="%m/%d/%Y %H:%M")
                 try:
                     df['Time entered'] = pd.to_datetime(df['Time entered'], format='%m/%d/%Y %I:%M:%S %p')
                 except Exception as e:
@@ -947,9 +943,8 @@ def main():
                 min_time = min_time.rename(columns={'Time entered': 'min_time_entered'})
                 
                 # Merge both max and min time into item_counts
-                item_counts = df[['Email']].drop_duplicates()
-                item_counts = pd.merge(item_counts, max_time, on='Email', how='left')
-                item_counts = pd.merge(item_counts, min_time, on='Email', how='left')
+                item_counts = item_counts.reset_index()
+                item_counts = (item_counts.merge(max_time, on='Email', how='left').merge(min_time, on='Email', how='left'))
                 
                 # Create 'submitted_ce' column based on the max 'Time entered'
                 item_counts['submitted_ce'] = item_counts['max_time_entered'].dt.strftime('%m-%d-%Y 23:59')
